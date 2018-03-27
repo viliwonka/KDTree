@@ -13,7 +13,7 @@ Array based KDTree. Uses Hoare partitioning to sort indices inplace. Uses sliddi
 * be multithreaded construction (WIP)
 * be fast for querying, also 
 * work from multiple threads, thread-safe (WIP)
-* work only with Euclid metric for now
+* work only with Euclid metric, for now
 
 ### Query modes:
 * Closest point query
