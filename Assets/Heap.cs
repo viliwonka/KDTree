@@ -1,16 +1,4 @@
-﻿// The object used for querying.
-// Contains internal stack / pool so that it doesn't generate (too much) garbage
-// The stack never down-sizes, only up-sizes, so more u use this object, less garbage will it make.
-
-// Should be used only by 1 thread,
-// so each thread should have it's own KDQuery object in order for querying to be thread safe
-
-// can switch tree on which you query.
-
-using System.Collections.Generic;
-using UnityEngine;
-using System;
-
+﻿
 namespace Floatlands.DataStructures {
 
     // array start at index 1
@@ -34,7 +22,7 @@ namespace Floatlands.DataStructures {
         public float HeadHeap { get { return heap[1]; } }
         
         public void ClearAndResize(int newSize = -1) {
-        
+            //todo: resize array here
             nodesCount = 0;
         }
         
@@ -63,9 +51,9 @@ namespace Floatlands.DataStructures {
             }
         }
         
-        int Parent(int index) { return index >> 1;     }
-        int Left  (int index) { return index >> 1;     }
-        int Right (int index) { return index << 1 + 1; }
+        int Parent(int index) { return index >> 1;       }
+        int Left  (int index) { return (index << 1);     }
+        int Right (int index) { return (index << 1) + 1; }
         
         // if heap is full, we need to remove head and bubble down new item
         private void BubbleDown(int index) {
@@ -74,25 +62,24 @@ namespace Floatlands.DataStructures {
             int R = Right(index);
         
             // bubbling down, 2 kids
-            while (R <= heap.Length) {
+            while (R <= nodesCount) {
 
-                // if heap property violated between index and L
+                // if heap property is violated between index and Left child
                 if(heap[index] < heap[L]) {
                 
                     if (heap[L] < heap[R]) {
 
-                        Swap(index, L); // left has bigger priority
-                        index = L;
+                        Swap(index, R); // left has bigger priority
+                        index = R;
                     } 
                     else {
 
-                        Swap(index, R); // right has bigger priority            
-                        index = R;
+                        Swap(index, L); // right has bigger priority            
+                        index = L;
                     }
-
                 }
                 else {
-                    // if heap property violated between index and R
+                    // if heap property is violated between index and R
                     if (heap[index] < heap[R]) {
                     
                         Swap(index, R);
@@ -111,13 +98,11 @@ namespace Floatlands.DataStructures {
             }
             
             // only left & last children available to test and swap
-            if (L < nodesCount && heap[index] < heap[L]) {
+            if (L <= nodesCount && heap[index] < heap[L]) {
                 Swap(index, L);
             }
         }
         
-        
-
         // if heap is not full
         private void BubbleUp(int index) {
         
@@ -132,6 +117,7 @@ namespace Floatlands.DataStructures {
                 P = Parent(index);
             }
         }
+        
 
         float tempHeap;
         void Swap(int A, int B) {
@@ -139,6 +125,45 @@ namespace Floatlands.DataStructures {
            tempHeap = heap[A];
             heap[A] = heap[B];
             heap[B] = tempHeap;
+        }
+
+        public void Print() {
+                
+            UnityEngine.Debug.Log("HeapPropertyHolds? " + HeapPropertyHolds(1));
+        }
+
+        public bool HeapPropertyHolds(int index, int depth = 0) {
+
+            if (index > nodesCount)
+                return true;
+
+                
+            UnityEngine.Debug.Log(heap[index]);
+
+            int L = Left(index);
+            int R = Right(index);
+
+            bool bothHold = true;
+
+            if(L <= nodesCount) {
+
+                UnityEngine.Debug.Log(heap[index] + " => " + heap[L]);
+
+                if (heap[index] < heap[L]) 
+                    bothHold = false;
+            }
+            
+            // if L <= nodesCount, then R <= nodesCount can also happen
+            if (R <= nodesCount) {
+
+                UnityEngine.Debug.Log(heap[index] + " => " + heap[R]);
+                
+                if (bothHold && heap[index] < heap[R]) 
+                    bothHold = false;
+                
+            } 
+            
+            return bothHold & HeapPropertyHolds(L, depth + 1) & HeapPropertyHolds(R, depth + 1);
         }
 
     }

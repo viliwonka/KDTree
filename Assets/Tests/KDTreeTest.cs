@@ -29,7 +29,21 @@ namespace Floatlands.DataStructures.Tests {
         // TODO dej v KDTree še DEPTH COUNT (da se potem average DEPTH izračuna)
         // TODO simuliri enak scenarij kot v Unity projektu kjer zašteka
         private void Start() {
-            
+
+            LimitedMaxHeap h = new LimitedMaxHeap(50);
+
+            System.Random r = new System.Random();
+
+            h.Push(1);
+            h.Push(5);
+            h.Push(10);
+            h.Push(3);
+            h.Push(30);
+            h.Push(2);
+            h.Push(8);
+
+            h.Print();
+        /*
             testingArray = points10k;
             Debug.Log(" -- 10K THOUSAND POINTS --");
             TestSet();
@@ -41,6 +55,7 @@ namespace Floatlands.DataStructures.Tests {
             testingArray = points1m;
             Debug.Log(" -- 1 MILLION POINTS --");
             TestSet();            
+            */
         }
 
         void TestSet() {
