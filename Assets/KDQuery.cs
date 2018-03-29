@@ -15,9 +15,9 @@ namespace Floatlands.DataStructures {
 
     public class KDQuery {
 
-        private KDQueryNode[] queryNodes; // StackPool
+        private KDQueryNode[] queryNodes;  // StackPool
         private int count = 0;             // size of stack
-        private int queryIndex = 0;            // current index at stack
+        private int queryIndex = 0;        // current index at stack
         // gives you initialized node from stack that acts also as a pool
         // automatically pushed onto stack
         private KDQueryNode PushGet() {
@@ -58,7 +58,7 @@ namespace Floatlands.DataStructures {
         // just gets unprocessed node from stack
         // increases queryIndex
         private KDQueryNode Pop() {
-
+        
             var node = queryNodes[queryIndex];
             queryIndex++;
             return node;
@@ -70,12 +70,127 @@ namespace Floatlands.DataStructures {
             queryIndex = 0;
         }
 
-        
-        public KDQuery() {
-            queryNodes = new KDQueryNode[2048];
+        public KDQuery(int initialStackSize = 2048) {
+
+            queryNodes = new KDQueryNode[initialStackSize];
         }
 
-        public void RadiusQuery(KDTree tree, Vector3 qPosition, float qRadius, List<KDNode> nodes) {
+        // Finds closest node (which doesn't necesarily contain closest point!!)
+        //! TO FINISH, TRICKY MATH
+        public KDNode ClosestNodeQuery(KDTree tree, Vector3 qPosition) {
+
+            ResetStack();
+            
+            var rootNode = tree.rootNode;
+
+            var rootQueryNode = PushGet();
+
+            rootQueryNode.node = rootNode;
+            rootQueryNode.tempClosestPoint = rootNode.bounds.ClosestPoint(qPosition);
+
+            KDQueryNode queryNode = null;
+            KDNode node = null;
+
+            KDQueryNode negativeQueryNode = null;
+            KDQueryNode positiveQueryNode = null;
+
+            Vector3[] points = tree.points;
+            int[] permutation = tree.permutation;
+
+            // searching for index that points to closest point
+            float minSqrDist = Single.MaxValue;
+            int minIndex = 0;
+
+            // KD search with pruning (don't visit areas which distance is more away than range)
+            // Recursion done on Stack
+            while (LeftToProcess > 0) {
+
+                queryNode = Pop();
+                node = queryNode.node;
+                
+                // pruning!
+                if (!node.Leaf) {
+
+                    int partitionAxis = node.partitionAxis;
+                    float partitionCoord = node.partitionCoordinate;
+
+                    Vector3 tempClosestPoint = queryNode.tempClosestPoint;
+                    
+
+                    if ((tempClosestPoint[partitionAxis] - partitionCoord) < 0) {
+                    
+                        negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
+
+                        tempClosestPoint[partitionAxis] = partitionCoord;
+                        
+                        float dist = Vector3.SqrMagnitude(tempClosestPoint - qPosition);
+
+                        if (node.positiveChild.Count != 0 && dist <= minSqrDist) {
+                        
+                            positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
+                        }
+                    }
+                    else {
+                        
+                        positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
+
+                        tempClosestPoint[partitionAxis] = partitionCoord;
+
+                        if (node.negativeChild.Count != 0 &&
+                        Vector3.SqrMagnitude(tempClosestPoint - qPosition) <= minSqrDist) {
+
+                            negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
+                        }
+                    }
+                }
+                else {
+
+                    for (int i = node.start; i < node.end; i++) {
+                    
+                        int index = permutation[i];
+
+                        float sqrDist = Vector3.SqrMagnitude(qPosition - points[index]);
+                        
+                        if (sqrDist < minSqrDist) {
+                            minSqrDist = sqrDist;
+                            minIndex = index;
+                        }
+                    }
+
+                    // leaf node
+                }
+            }
+            throw new NotImplementedException();
+        }
+        
+
+        public int ClosestPointQuery(KDTree tree, Vector3 qPosition) {
+
+            var node = ClosestNodeQuery(tree, qPosition);
+            
+            Vector3[] points = tree.points;
+            int[] permutation = tree.permutation;
+
+            float minSqrDist = Single.MaxValue;
+            int minIndex = 0;
+            
+            for(int i = node.start;i < node.end; i++) {
+
+                int index = permutation[i];
+
+                float sqrDist = Vector3.SqrMagnitude(qPosition - points[index]);
+
+                if(sqrDist < minSqrDist) {
+                    minSqrDist = sqrDist;
+                    minIndex = index;
+                }
+            }
+
+            return minIndex;
+        }
+
+        
+        public void RadiusQueryNodes(KDTree tree, Vector3 qPosition, float qRadius, List<KDNode> nodes) {
 
             ResetStack();
             
@@ -148,6 +263,7 @@ namespace Floatlands.DataStructures {
                     }
                 }
                 else {
+
                     //! LEAF NODE found
                     if (node.Count > 0) {
                         nodes.Add(node);
@@ -156,8 +272,12 @@ namespace Floatlands.DataStructures {
             }
         }
         
-        //need min heap
-        public void KNearestQuery(KDTree tree, Vector3 qPosition, int count, List<KDNode> nodes) {
+        public void RangeQueryNodes(KDTree tree, Vector3 qPosition, float qRadius, List<KDNode> nodes) {
+
+        }
+
+        // need min heap
+        public void KNearestQuery(KDTree tree, Vector3 qPosition, int count, List<int> indices) {
 
         }
     }

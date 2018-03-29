@@ -76,6 +76,7 @@ namespace Floatlands.DataStructures {
             return tree;
         }
         
+
         void BuildTree() {
         
             rootNode = new KDNode();
@@ -202,6 +203,7 @@ namespace Floatlands.DataStructures {
         /// </summary>
         /// <param name="parent">This is where root node goes</param>
         /// <param name="depth"></param>
+        ///
 #if !FL_KD_DEBUG
         void SplitNode(KDNode parent) { 
 #else
@@ -281,7 +283,6 @@ namespace Floatlands.DataStructures {
 
         }
 
-
         /// <summary>
         /// Sliding midpoint splitting pivot calculation
         /// 1. First splits node to two equal parts (midPoint)
@@ -341,7 +342,7 @@ namespace Floatlands.DataStructures {
             } 
             else {
 #endif
-                //this for loop section is used both for sorted and unsorted data 
+                // this for loop section is used both for sorted and unsorted data 
                 for (int i = start; i < end; i++) {
 
                     if (points[permutation[i]][axis] < midPoint)
@@ -434,7 +435,7 @@ namespace Floatlands.DataStructures {
         /// <returns></returns>
         bool ContinueSplit(KDNode node) {
 
-            return (node.Count > 100);
+            return (node.Count > maxPointsPerLeafNode);
         }
     }
 }
