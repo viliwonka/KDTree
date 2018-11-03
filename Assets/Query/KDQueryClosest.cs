@@ -21,16 +21,14 @@ namespace DataStructures.Query {
 
         // Finds closest node (which doesn't necesarily contain closest point!!)
         //! TO FINISH, TRICKY MATH
-        public KDNode SearchNode(KDTree tree, Vector3 qPosition) {
+        //! DIFFERENT VERSION THAN IN KDQueryBase
+        public KDNode SearchNearestNode(KDTree tree, Vector3 qPosition) {
 
             ResetStack();
 
             var rootNode = tree.rootNode;
 
-            var rootQueryNode = PushGet();
-
-            rootQueryNode.node = rootNode;
-            rootQueryNode.tempClosestPoint = rootNode.bounds.ClosestPoint(qPosition);
+            var rootQueryNode = PushGet(rootNode, rootNode.bounds.ClosestPoint(qPosition));
 
             KDQueryNode queryNode = null;
             KDNode node = null;

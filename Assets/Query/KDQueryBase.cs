@@ -79,6 +79,85 @@ namespace DataStructures.Query {
             queryNodes = new KDQueryNode[initialStackSize];
         }
 
+        // Finds closest node (which doesn't necesarily contain closest point!!)
+        //! TO FINISH, TRICKY MATH
+        public KDNode SearchNearestNode(KDTree tree, Vector3 qPosition) {
+
+            ResetStack();
+
+            var rootNode = tree.rootNode;
+
+            var rootQueryNode = PushGet(rootNode, rootNode.bounds.ClosestPoint(qPosition));
+
+            KDQueryNode queryNode = null;
+            KDNode node = null;
+
+            KDQueryNode negativeQueryNode = null;
+            KDQueryNode positiveQueryNode = null;
+
+            Vector3[] points = tree.points;
+            int[] permutation = tree.permutation;
+
+            // searching for index that points to closest point
+            float minSqrDist = Single.MaxValue;
+            KDNode minNode = null;
+
+            // KD search with pruning (don't visit areas which distance is more away than range)
+            // Recursion done on Stack
+            while(LeftToProcess > 0) {
+
+                queryNode = Pop();
+                node = queryNode.node;
+
+                // pruning!
+                if(!node.Leaf) {
+
+                    int partitionAxis = node.partitionAxis;
+                    float partitionCoord = node.partitionCoordinate;
+
+                    Vector3 tempClosestPoint = queryNode.tempClosestPoint;
+
+                    if((tempClosestPoint[partitionAxis] - partitionCoord) < 0) {
+
+                        negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
+
+                        tempClosestPoint[partitionAxis] = partitionCoord;
+
+                        float dist = Vector3.SqrMagnitude(tempClosestPoint - qPosition);
+
+                        if(node.positiveChild.Count != 0 && dist <= minSqrDist) {
+
+                            positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
+                        }
+                    }
+                    else {
+
+                        positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
+
+                        tempClosestPoint[partitionAxis] = partitionCoord;
+
+                        if(node.negativeChild.Count != 0 &&
+                        Vector3.SqrMagnitude(tempClosestPoint - qPosition) <= minSqrDist) {
+
+                            negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
+                        }
+                    }
+                }
+                else {
+
+                    // leaf node
+                    float sqrDist = Vector3.SqrMagnitude(queryNode.tempClosestPoint - qPosition);
+
+                    if(sqrDist < minSqrDist) {
+                        minSqrDist = sqrDist;
+                        minNode = node;
+                    }
+
+                }
+            }
+
+            return minNode;
+        }
     }
 
 }
