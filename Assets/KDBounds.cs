@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-namespace Floatlands.DataStructures {
+namespace DataStructures {
 
     public struct KDBounds {
 
@@ -15,17 +15,17 @@ namespace Floatlands.DataStructures {
             }
         }
 
-        // returns real bounds
+        // returns unity bounds
         public Bounds Bounds {
-            
+
             get {
                 return new Bounds(
-                    (min + max) / 2, 
+                    (min + max) / 2,
                     (max - min)
                 );
             }
         }
-        
+
         public Vector3 ClosestPoint(Vector3 point) {
             return Bounds.ClosestPoint(point);
         }

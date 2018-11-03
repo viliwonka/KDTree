@@ -4,10 +4,10 @@ using System.Diagnostics;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Floatlands.DataStructures.Tests {
+namespace DataStructures.Tests {
 
     public class KDTreeTest : MonoBehaviour {
-    
+
         Vector3[] points10k;
         Vector3[] points100k;
         Vector3[] points1m;
@@ -20,7 +20,7 @@ namespace Floatlands.DataStructures.Tests {
             points10k = new Vector3[10000];
             points100k = new Vector3[100000];
             points1m = new Vector3[1000000];
-            
+
             stopwatch = new Stopwatch();
         }
 
@@ -51,30 +51,32 @@ namespace Floatlands.DataStructures.Tests {
             testingArray = points100k;
             Debug.Log(" -- 100K THOUSAND POINTS --");
             TestSet();
-            
+
             testingArray = points1m;
             Debug.Log(" -- 1 MILLION POINTS --");
-            TestSet();            
+            TestSet();
             */
         }
 
         void TestSet() {
+
             //Debug.Log(testingArray.Length + " random points for each test:");
+
             Test(5, "Uniform", RandomizeUniform);
             Test(5, "Triangular", RandomizeUniform);
             Test(5, "2D planar", Randomize2DPlane);
-            Test(5, "2D planar, sorted", Sorted2DPlane);
+            Test(5, "2D planar, sorted", SortedRandomize2DPlane);
 
         }
 
         void Test(int tests, string distributionName, System.Action randomize) {
-        
+
             long sum = 0;
             for (int i = 0; i < tests; i++) {
 
                 randomize();
                 long time = ConstructionTest();
- 
+
 
                 sum += time;
             }
@@ -87,8 +89,8 @@ namespace Floatlands.DataStructures.Tests {
 
             for (int i = 0; i < testingArray.Length; i++)
                 testingArray[i] = new Vector3(
-                    Random.value, 
-                    Random.value, 
+                    Random.value,
+                    Random.value,
                     Random.value);
         }
 
@@ -97,24 +99,24 @@ namespace Floatlands.DataStructures.Tests {
 
             for (int i = 0; i < testingArray.Length; i++)
                 testingArray[i] = new Vector3(
-                    Random.value + Random.value, 
-                    Random.value + Random.value, 
+                    Random.value + Random.value,
+                    Random.value + Random.value,
                     Random.value + Random.value
                 );
         }
-        
+
         // 2D plane, with 10% of noise
         void Randomize2DPlane() {
             //if U and V are very similar => degenerate plane aka line
             Vector3 U = Random.onUnitSphere;
             Vector3 V = Random.onUnitSphere;
-            
+
             for (int i = 0; i < testingArray.Length; i++)
                 testingArray[i] = Random.value * U + Random.value * V + Random.insideUnitSphere * 0.1f;
 
         }
 
-        void Sorted2DPlane() {
+        void SortedRandomize2DPlane() {
 
             Randomize2DPlane();
 
@@ -127,7 +129,7 @@ namespace Floatlands.DataStructures.Tests {
 
 
         KDTree tree;
-        
+
         long ConstructionTest() {
 
             stopwatch.Reset();
@@ -142,7 +144,7 @@ namespace Floatlands.DataStructures.Tests {
 
         //to finish
         long RadiusQuery() {
-        
+
             stopwatch.Reset();
             stopwatch.Start();
 

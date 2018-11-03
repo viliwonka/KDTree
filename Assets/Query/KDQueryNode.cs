@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-namespace Floatlands.DataStructures {
+namespace DataStructures.Query {
 
     public class KDQueryNode {
 
@@ -9,7 +9,7 @@ namespace Floatlands.DataStructures {
         public Vector3 tempClosestPoint;
 
         public KDQueryNode() {
-            
+
         }
 
         public KDQueryNode(KDNode node, Vector3 tempClosestPoint) {
