@@ -11,28 +11,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+// TODO: finish
 namespace DataStructures.Query {
 
-    public class KDQueryKNearest : KDQueryBase {
+    public partial class KDQuery {
 
-        private LimitedMaxHeap<int> heap;
-
-        public int KNearestCount { get; private set; }
-
-        public KDQueryKNearest(int kNearestCount, int initialStackSize = 2048) : base(initialStackSize) {
-
-            KNearestCount = kNearestCount;
-            heap = new LimitedMaxHeap<int>(kNearestCount);
-        }
-
-        //should be greatly boosted by nearest node search
-        public void SearchKNearest(KDTree tree, Vector3 queryPosition, List<int> resultIndices, List<float> resultDistances = null) {
+        /// <summary>
+        /// Search by radius method.
+        /// </summary>
+        /// <param name="tree">Tree to do search on</param>
+        /// <param name="queryPosition">Position</param>
+        /// <param name="queryRadius">Radius</param>
+        /// <param name="resultIndices">Initialized list, cleared.</param>
+        public void Radius(KDTree tree, Vector3 queryPosition, float queryRadius, List<int> resultIndices) {
 
             ResetStack();
-            heap.Clear();
 
-            ///Biggest Smallest Squared Radius
-            float BSSR = Single.PositiveInfinity;
+            float squaredRadius = queryRadius * queryRadius;
 
             var rootNode = tree.rootNode;
 
@@ -76,7 +71,7 @@ namespace DataStructures.Query {
 
                         // testing other side
                         if(node.positiveChild.Count != 0 &&
-                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= BSSR) {
+                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
 
                             positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
                         }
@@ -96,35 +91,26 @@ namespace DataStructures.Query {
 
                         // testing other side
                         if(node.negativeChild.Count != 0 &&
-                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= BSSR) {
+                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
 
                             negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
                         }
                     }
                 }
                 else {
-
-                    float dist;
                     // LEAF
                     for(int i = node.start; i < node.end; i++) {
 
-                        dist = Vector3.SqrMagnitude(tree.points[tree.permutation[i]]);
+                        if(Vector3.SqrMagnitude(tree.points[tree.permutation[i]]) <= squaredRadius) {
 
-                        if(dist <= BSSR) {
-
-                            heap.Push(dist);
-
-                            if(heap.Full) {
-                                BSSR = heap.HeadHeapValue;
-                            }
+                            resultIndices.Add(i);
                         }
                     }
 
                 }
             }
-
-            heap.FlushResult(resultIndices, resultDistances);
         }
+
 
     }
 

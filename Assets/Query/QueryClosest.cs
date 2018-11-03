@@ -13,74 +13,11 @@ using System;
 
 namespace DataStructures.Query {
 
-    public abstract class KDQueryBase {
-
-        protected KDQueryNode[] queryNodes;  // StackPool
-        protected int count = 0;             // size of stack
-        protected int queryIndex = 0;        // current index at stack
-
-        // gives you initialized node from stack that acts also as a pool
-        // automatically pushed onto stack
-        private KDQueryNode PushGet() {
-
-            KDQueryNode node = null;
-
-            if (count < queryNodes.Length) {
-
-                if (queryNodes[count] == null)
-                    queryNodes[count] = node = new KDQueryNode();
-                else
-                    node = queryNodes[count];
-            }
-            else {
-
-                // automatic resize of pool
-                Array.Resize(ref queryNodes, queryNodes.Length * 2);
-                queryNodes[count] = new KDQueryNode();
-
-            }
-
-            count++;
-
-            return node;
-        }
-
-        protected KDQueryNode PushGet(KDNode node, Vector3 tempClosestPoint) {
-
-            var queryNode = PushGet();
-            queryNode.node = node;
-            queryNode.tempClosestPoint = tempClosestPoint;
-            return queryNode;
-        }
-
-        protected int LeftToProcess {
-
-            get {
-                return count - queryIndex;
-            }
-        }
-
-        // just gets unprocessed node from stack
-        // increases queryIndex
-        protected KDQueryNode Pop() {
-
-            var node = queryNodes[queryIndex];
-            queryIndex++;
-            return node;
-        }
-
-        protected void ResetStack() {
-
-            count = 0;
-            queryIndex = 0;
-        }
-
-        protected KDQueryBase(int initialStackSize = 2048) {
-            queryNodes = new KDQueryNode[initialStackSize];
-        }
+    public partial class KDQuery {
 
         // Finds closest node (which doesn't necesarily contain closest point!!)
         //! TO FINISH, TRICKY MATH
+        //! DIFFERENT VERSION THAN IN KDQueryBase
         public KDNode SearchNearestNode(KDTree tree, Vector3 qPosition) {
 
             ResetStack();
@@ -100,7 +37,7 @@ namespace DataStructures.Query {
 
             // searching for index that points to closest point
             float minSqrDist = Single.MaxValue;
-            KDNode minNode = null;
+            int minIndex = 0;
 
             // KD search with pruning (don't visit areas which distance is more away than range)
             // Recursion done on Stack
@@ -145,19 +82,49 @@ namespace DataStructures.Query {
                 }
                 else {
 
-                    // leaf node
-                    float sqrDist = Vector3.SqrMagnitude(queryNode.tempClosestPoint - qPosition);
+                    for(int i = node.start; i < node.end; i++) {
 
-                    if(sqrDist < minSqrDist) {
-                        minSqrDist = sqrDist;
-                        minNode = node;
+                        int index = permutation[i];
+
+                        float sqrDist = Vector3.SqrMagnitude(qPosition - points[index]);
+
+                        if(sqrDist < minSqrDist) {
+                            minSqrDist = sqrDist;
+                            minIndex = index;
+                        }
                     }
 
+                    // leaf node
+                }
+            }
+            throw new NotImplementedException();
+        }
+
+        public int SearchNearestNode(KDTree tree, Vector3 queryPosition) {
+
+            var node = SearchNearestNode(tree, queryPosition);
+
+            Vector3[] points = tree.points;
+            int[] permutation = tree.permutation;
+
+            float minSqrDist = Single.MaxValue;
+            int minIndex = 0;
+
+            for(int i = node.start; i < node.end; i++) {
+
+                int index = permutation[i];
+
+                float sqrDist = Vector3.SqrMagnitude(queryPosition - points[index]);
+
+                if(sqrDist < minSqrDist) {
+                    minSqrDist = sqrDist;
+                    minIndex = index;
                 }
             }
 
-            return minNode;
+            return minIndex;
         }
+
     }
 
 }

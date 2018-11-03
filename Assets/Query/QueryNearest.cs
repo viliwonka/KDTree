@@ -11,27 +11,30 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-//TODO: finish
 namespace DataStructures.Query {
 
-    public class KDQueryRadius : KDQueryBase {
+    public partial class KDQuery {
 
-        public KDQueryRadius(int initialStackSize = 2048) : base(initialStackSize) {
+        SortedList<int, LimitedMaxHeap<int>> _heaps = new SortedList<int, LimitedMaxHeap<int>>();
 
-        }
+        //should be greatly boosted by nearest node search
+        public void KNearest(KDTree tree, Vector3 queryPosition, int k, List<int> resultIndices, List<float> resultDistances = null) {
 
-        /// <summary>
-        /// Search by radius method.
-        /// </summary>
-        /// <param name="tree">Tree to do search on</param>
-        /// <param name="queryPosition">Position</param>
-        /// <param name="queryRadius">Radius</param>
-        /// <param name="resultIndices">Initialized list, cleared.</param>
-        public void SearchByRadius(KDTree tree, Vector3 queryPosition, float queryRadius, List<int> resultIndices) {
+            //pooled heap arrays
+            LimitedMaxHeap<int> heap;
+
+            _heaps.TryGetValue(k, out heap);
+
+            if(heap == null) {
+                heap = new LimitedMaxHeap<int>(k);
+                _heaps.Add(k, heap);
+            }
 
             ResetStack();
+            heap.Clear();
 
-            float squaredRadius = queryRadius * queryRadius;
+            ///Biggest Smallest Squared Radius
+            float BSSR = Single.PositiveInfinity;
 
             var rootNode = tree.rootNode;
 
@@ -75,7 +78,7 @@ namespace DataStructures.Query {
 
                         // testing other side
                         if(node.positiveChild.Count != 0 &&
-                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
+                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= BSSR) {
 
                             positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
                         }
@@ -95,26 +98,35 @@ namespace DataStructures.Query {
 
                         // testing other side
                         if(node.negativeChild.Count != 0 &&
-                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
+                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= BSSR) {
 
                             negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
                         }
                     }
                 }
                 else {
+
+                    float dist;
                     // LEAF
                     for(int i = node.start; i < node.end; i++) {
 
-                        if(Vector3.SqrMagnitude(tree.points[tree.permutation[i]]) <= squaredRadius) {
+                        dist = Vector3.SqrMagnitude(tree.points[tree.permutation[i]]);
 
-                            resultIndices.Add(i);
+                        if(dist <= BSSR) {
+
+                            heap.Push(dist);
+
+                            if(heap.Full) {
+                                BSSR = heap.HeadHeapValue;
+                            }
                         }
                     }
 
                 }
             }
-        }
 
+            heap.FlushResult(resultIndices, resultDistances);
+        }
 
     }
 

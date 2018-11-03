@@ -13,35 +13,26 @@ using System;
 
 namespace DataStructures.Query {
 
-    public class KDQueryClosest : KDQueryBase {
+    public partial class KDQuery {
 
-        public KDQueryClosest(int initialStackSize = 2048) : base(initialStackSize) {
-
-        }
-
-        // Finds closest node (which doesn't necesarily contain closest point!!)
-        //! TO FINISH, TRICKY MATH
-        //! DIFFERENT VERSION THAN IN KDQueryBase
-        public KDNode SearchNearestNode(KDTree tree, Vector3 qPosition) {
+        //TODO: to implement
+        public void Interval(KDTree tree, Vector3 min, Vector3 max, List<int> resultIndices) {
 
             ResetStack();
 
             var rootNode = tree.rootNode;
 
-            var rootQueryNode = PushGet(rootNode, rootNode.bounds.ClosestPoint(qPosition));
+            var rootQueryNode = PushGet(
+
+                rootNode,
+                rootNode.bounds.ClosestPoint(queryPosition)
+            );
 
             KDQueryNode queryNode = null;
             KDNode node = null;
 
             KDQueryNode negativeQueryNode = null;
             KDQueryNode positiveQueryNode = null;
-
-            Vector3[] points = tree.points;
-            int[] permutation = tree.permutation;
-
-            // searching for index that points to closest point
-            float minSqrDist = Single.MaxValue;
-            int minIndex = 0;
 
             // KD search with pruning (don't visit areas which distance is more away than range)
             // Recursion done on Stack
@@ -50,7 +41,6 @@ namespace DataStructures.Query {
                 queryNode = Pop();
                 node = queryNode.node;
 
-                // pruning!
                 if(!node.Leaf) {
 
                     int partitionAxis = node.partitionAxis;
@@ -60,75 +50,57 @@ namespace DataStructures.Query {
 
                     if((tempClosestPoint[partitionAxis] - partitionCoord) < 0) {
 
+                        // we already know we are inside negative bound/node,
+                        // so we don't need to test for distance
+                        // push to stack for later querying
+
+                        // tempClosestPoint is inside negative side
+                        // assign it to negativeChild
                         negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
-                        float dist = Vector3.SqrMagnitude(tempClosestPoint - qPosition);
-
-                        if(node.positiveChild.Count != 0 && dist <= minSqrDist) {
+                        // testing other side
+                        if(node.positiveChild.Count != 0 &&
+                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
 
                             positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
                         }
                     }
                     else {
 
+                        // we already know we are inside positive bound/node,
+                        // so we don't need to test for distance
+                        // push to stack for later querying
+
+                        // tempClosestPoint is inside positive side
+                        // assign it to positiveChild
                         positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
 
+                        // project the tempClosestPoint to other bound
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
+                        // testing other side
                         if(node.negativeChild.Count != 0 &&
-                        Vector3.SqrMagnitude(tempClosestPoint - qPosition) <= minSqrDist) {
+                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
 
                             negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
                         }
                     }
                 }
                 else {
-
+                    // LEAF
                     for(int i = node.start; i < node.end; i++) {
 
-                        int index = permutation[i];
+                        if(Vector3.SqrMagnitude(tree.points[tree.permutation[i]]) <= squaredRadius) {
 
-                        float sqrDist = Vector3.SqrMagnitude(qPosition - points[index]);
-
-                        if(sqrDist < minSqrDist) {
-                            minSqrDist = sqrDist;
-                            minIndex = index;
+                            resultIndices.Add(i);
                         }
                     }
 
-                    // leaf node
                 }
             }
-            throw new NotImplementedException();
         }
-
-        public int SearchPoint(KDTree tree, Vector3 queryPosition) {
-
-            var node = SearchNode(tree, queryPosition);
-
-            Vector3[] points = tree.points;
-            int[] permutation = tree.permutation;
-
-            float minSqrDist = Single.MaxValue;
-            int minIndex = 0;
-
-            for(int i = node.start; i < node.end; i++) {
-
-                int index = permutation[i];
-
-                float sqrDist = Vector3.SqrMagnitude(queryPosition - points[index]);
-
-                if(sqrDist < minSqrDist) {
-                    minSqrDist = sqrDist;
-                    minIndex = index;
-                }
-            }
-
-            return minIndex;
-        }
-
     }
 
 }
