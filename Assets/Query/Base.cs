@@ -39,7 +39,7 @@ namespace DataStructures.Query {
 
                 // automatic resize of pool
                 Array.Resize(ref queryNodes, queryNodes.Length * 2);
-                queryNodes[count] = new KDQueryNode();
+                node = queryNodes[count] = new KDQueryNode();
             }
 
             count++;
@@ -77,7 +77,7 @@ namespace DataStructures.Query {
             queryIndex = 0;
         }
 
-        protected KDQuery(int initialStackSize = 2048) {
+        public KDQuery(int initialStackSize = 2048) {
             queryNodes = new KDQueryNode[initialStackSize];
         }
 

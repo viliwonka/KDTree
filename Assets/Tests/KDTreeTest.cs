@@ -17,11 +17,11 @@ namespace DataStructures.Tests {
 
         void Awake() {
 
-            points10k = new Vector3[10000];
+            points10k  = new Vector3[10000];
             points100k = new Vector3[100000];
-            points1m = new Vector3[1000000];
+            points1m   = new Vector3[1000000];
 
-            stopwatch = new Stopwatch();
+            stopwatch  = new Stopwatch();
         }
 
         // TODO dej v KDTree MAX DEPTH (da se ve koliko je max globina pri konstrukciji)
@@ -30,20 +30,6 @@ namespace DataStructures.Tests {
         // TODO simuliri enak scenarij kot v Unity projektu kjer zašteka
         private void Start() {
 
-            LimitedMaxHeap h = new LimitedMaxHeap(50);
-
-            System.Random r = new System.Random();
-
-            h.Push(1);
-            h.Push(5);
-            h.Push(10);
-            h.Push(3);
-            h.Push(30);
-            h.Push(2);
-            h.Push(8);
-
-            h.Print();
-        /*
             testingArray = points10k;
             Debug.Log(" -- 10K THOUSAND POINTS --");
             TestSet();
@@ -55,59 +41,82 @@ namespace DataStructures.Tests {
             testingArray = points1m;
             Debug.Log(" -- 1 MILLION POINTS --");
             TestSet();
-            */
         }
 
         void TestSet() {
 
-            //Debug.Log(testingArray.Length + " random points for each test:");
+            // Debug.Log(testingArray.Length + " random points for each test:");
 
-            Test(5, "Uniform", RandomizeUniform);
-            Test(5, "Triangular", RandomizeUniform);
-            Test(5, "2D planar", Randomize2DPlane);
-            Test(5, "2D planar, sorted", SortedRandomize2DPlane);
+            TestConstruction(5, "Uniform", RandomizeUniform);
+            TestConstruction(5, "Triangular", RandomizeUniform);
+            TestConstruction(5, "2D planar", Randomize2DPlane);
+            TestConstruction(5, "2D planar, sorted", SortedRandomize2DPlane);
+
+            TestQuery(5, "Uniform", RandomizeUniform);
+            TestQuery(5, "Triangular", RandomizeUniform);
+            TestQuery(5, "2D planar", Randomize2DPlane);
+            TestQuery(5, "2D planar, sorted", SortedRandomize2DPlane);
 
         }
 
-        void Test(int tests, string distributionName, System.Action randomize) {
+        void TestConstruction(int tests, string distributionName, System.Action randomize) {
 
             long sum = 0;
             for (int i = 0; i < tests; i++) {
 
                 randomize();
-                long time = ConstructionTest();
-
+                long time = Construct();
 
                 sum += time;
             }
 
-            UnityEngine.Debug.Log("Average " + distributionName + " distribution construction time: " + (long) (sum / (float) tests) + " ms");
+            Debug.Log("Average " + distributionName + " distribution construction time: " + (long) (sum / (float) tests) + " ms");
         }
+
+        void TestQuery(int tests, string distributionName, System.Action randomize) {
+
+            randomize();
+            Construct();
+
+            long sum = 0;
+            for(int i = 0; i < tests; i++) {
+
+                sum += QueryRadius();
+            }
+
+            Debug.Log(distributionName + " distribution average query time: " + (long) (sum / (float)tests) + " ms");
+        }
+
 
         // uniform distribution
         void RandomizeUniform() {
 
-            for (int i = 0; i < testingArray.Length; i++)
+            for(int i = 0; i < testingArray.Length; i++) {
                 testingArray[i] = new Vector3(
                     Random.value,
                     Random.value,
-                    Random.value);
+                    Random.value
+                );
+            }
         }
 
         // triangle distribution
         void RandomizeTriangle() {
 
-            for (int i = 0; i < testingArray.Length; i++)
+            for(int i = 0; i < testingArray.Length; i++) {
+
                 testingArray[i] = new Vector3(
-                    Random.value + Random.value,
-                    Random.value + Random.value,
-                    Random.value + Random.value
+                    (Random.value + Random.value) / 2f,
+                    (Random.value + Random.value) / 2f,
+                    (Random.value + Random.value) / 2f
                 );
+            }
         }
 
         // 2D plane, with 10% of noise
         void Randomize2DPlane() {
-            //if U and V are very similar => degenerate plane aka line
+
+            // if U and V are very similar => degenerate plane aka line
             Vector3 U = Random.onUnitSphere;
             Vector3 V = Random.onUnitSphere;
 
@@ -127,10 +136,9 @@ namespace DataStructures.Tests {
 
         }
 
-
         KDTree tree;
 
-        long ConstructionTest() {
+        long Construct() {
 
             stopwatch.Reset();
             stopwatch.Start();
@@ -142,19 +150,73 @@ namespace DataStructures.Tests {
             return stopwatch.ElapsedMilliseconds;
         }
 
-        //to finish
-        long RadiusQuery() {
+        Query.KDQuery query = new Query.KDQuery();
+        List<int> results = new List<int>();
+
+        long QueryRadius() {
 
             stopwatch.Reset();
             stopwatch.Start();
 
-            tree = KDTreeBuilder.Instance.Build(testingArray);
+            Vector3 position = Vector3.one * 0.5f + Random.insideUnitSphere;
+            float radius = 0.25f;
+
+            results.Clear();
+            query.Radius(tree, position, radius, results);
 
             stopwatch.Stop();
 
             return stopwatch.ElapsedMilliseconds;
         }
 
+        long QueryClosest() {
 
+            stopwatch.Reset();
+            stopwatch.Start();
+
+            Vector3 position = Vector3.one * 0.5f + Random.insideUnitSphere;
+            float radius = 0.25f;
+
+            results.Clear();
+            query.ClosestPoint(tree, position);
+
+            stopwatch.Stop();
+
+            return stopwatch.ElapsedMilliseconds;
+        }
+
+        long QueryKNearest() {
+
+            stopwatch.Reset();
+            stopwatch.Start();
+
+            Vector3 position = Vector3.one * 0.5f + Random.insideUnitSphere;
+            int k = 13;
+
+            results.Clear();
+            query.KNearest(tree, position, k, results);
+
+            stopwatch.Stop();
+
+            return stopwatch.ElapsedMilliseconds;
+        }
+
+        long QueryInterval() {
+
+            stopwatch.Reset();
+            stopwatch.Start();
+
+            Vector3 randOffset = Random.insideUnitSphere * 0.25f;
+
+            Vector3 min = Vector3.one * 0.25f + Random.insideUnitSphere * 0.25f + randOffset;
+            Vector3 max = Vector3.one * 0.75f + Random.insideUnitSphere * 0.25f + randOffset;
+
+            results.Clear();
+            query.Interval(tree, min, max, results);
+
+            stopwatch.Stop();
+
+            return stopwatch.ElapsedMilliseconds;
+        }
     }
 }

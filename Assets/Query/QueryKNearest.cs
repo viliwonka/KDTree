@@ -37,8 +37,8 @@ namespace DataStructures.Query {
                 _heaps.Add(k, heap);
             }
 
-            ResetStack();
             heap.Clear();
+            ResetStack();
 
             ///Biggest Smallest Squared Radius
             float BSSR = Single.PositiveInfinity;

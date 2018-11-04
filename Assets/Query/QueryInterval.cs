@@ -15,7 +15,7 @@ namespace DataStructures.Query {
 
     public partial class KDQuery {
 
-        //TODO: to implement
+        // TODO: to implement
         public void Interval(KDTree tree, Vector3 min, Vector3 max, List<int> resultIndices) {
 
             ResetStack();
