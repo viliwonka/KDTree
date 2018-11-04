@@ -19,8 +19,11 @@ namespace DataStructures.Query {
         protected int count = 0;             // size of stack
         protected int queryIndex = 0;        // current index at stack
 
-        // gives you initialized node from stack that acts also as a pool
-        // automatically pushed onto stack
+        /// <summary>
+        /// Returns initialized node from stack that also acts as a pool
+        /// The returned reference to node stays in stack
+        /// </summary>
+        /// <returns>Reference to pooled node</returns>
         private KDQueryNode PushGet() {
 
             KDQueryNode node = null;
@@ -37,7 +40,6 @@ namespace DataStructures.Query {
                 // automatic resize of pool
                 Array.Resize(ref queryNodes, queryNodes.Length * 2);
                 queryNodes[count] = new KDQueryNode();
-
             }
 
             count++;

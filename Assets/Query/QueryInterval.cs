@@ -91,7 +91,8 @@ namespace DataStructures.Query {
                 else {
 
                     // LEAF
-                    // testing, if node bounds is inside the query interval
+
+                    // testing if node bounds are inside the query interval
                     if(node.bounds.min[0] >= min[0]
                     && node.bounds.min[1] >= min[1]
                     && node.bounds.min[2] >= min[2]
@@ -106,6 +107,7 @@ namespace DataStructures.Query {
                         }
 
                     }
+                    // node is not inside query interval, need to do test on each point separately
                     else {
 
                         for(int i = node.start; i < node.end; i++) {

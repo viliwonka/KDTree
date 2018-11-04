@@ -15,16 +15,19 @@ namespace DataStructures.Query {
 
     public partial class KDQuery {
 
-        // Finds closest node (which doesn't necesarily contain closest point!!)
-        //! TO FINISH, TRICKY MATH
-        //! DIFFERENT VERSION THAN IN KDQueryBase
-        public KDNode ClosestNode(KDTree tree, Vector3 qPosition) {
+        /// <summary>
+        /// Returns an index to closest point
+        /// </summary>
+        /// <param name="tree">Tree to do search on</param>
+        /// <param name="queryPosition">Position</param>
+        /// <returns></returns>
+        public int ClosestPoint(KDTree tree, Vector3 queryPosition) {
 
             ResetStack();
 
             var rootNode = tree.rootNode;
 
-            var rootQueryNode = PushGet(rootNode, rootNode.bounds.ClosestPoint(qPosition));
+            var rootQueryNode = PushGet(rootNode, rootNode.bounds.ClosestPoint(queryPosition));
 
             KDQueryNode queryNode = null;
             KDNode node = null;
@@ -60,7 +63,7 @@ namespace DataStructures.Query {
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
-                        float dist = Vector3.SqrMagnitude(tempClosestPoint - qPosition);
+                        float dist = Vector3.SqrMagnitude(tempClosestPoint - queryPosition);
 
                         if(node.positiveChild.Count != 0 && dist <= minSqrDist) {
 
@@ -73,8 +76,9 @@ namespace DataStructures.Query {
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
-                        if(node.negativeChild.Count != 0 &&
-                        Vector3.SqrMagnitude(tempClosestPoint - qPosition) <= minSqrDist) {
+                        float dist = Vector3.SqrMagnitude(tempClosestPoint - queryPosition);
+
+                        if(node.negativeChild.Count != 0 && dist <= minSqrDist) {
 
                             negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
                         }
@@ -86,7 +90,7 @@ namespace DataStructures.Query {
 
                         int index = permutation[i];
 
-                        float sqrDist = Vector3.SqrMagnitude(qPosition - points[index]);
+                        float sqrDist = Vector3.SqrMagnitude(queryPosition - points[index]);
 
                         if(sqrDist < minSqrDist) {
                             minSqrDist = sqrDist;
@@ -97,34 +101,9 @@ namespace DataStructures.Query {
                     // leaf node
                 }
             }
-            throw new NotImplementedException();
-        }
-
-        public int ClosestPoint(KDTree tree, Vector3 queryPosition) {
-
-            var node = SearchNearestNode(tree, queryPosition);
-
-            Vector3[] points = tree.points;
-            int[] permutation = tree.permutation;
-
-            float minSqrDist = Single.MaxValue;
-            int minIndex = 0;
-
-            for(int i = node.start; i < node.end; i++) {
-
-                int index = permutation[i];
-
-                float sqrDist = Vector3.SqrMagnitude(queryPosition - points[index]);
-
-                if(sqrDist < minSqrDist) {
-                    minSqrDist = sqrDist;
-                    minIndex = index;
-                }
-            }
 
             return minIndex;
         }
 
     }
-
 }

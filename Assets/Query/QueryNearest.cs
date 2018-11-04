@@ -17,7 +17,14 @@ namespace DataStructures.Query {
 
         SortedList<int, LimitedMaxHeap<int>> _heaps = new SortedList<int, LimitedMaxHeap<int>>();
 
-        //should be greatly boosted by nearest node search
+        /// <summary>
+        /// Returns indices to k closest points, and optionaly can return distances
+        /// </summary>
+        /// <param name="tree">Tree to do search on</param>
+        /// <param name="queryPosition">Position</param>
+        /// <param name="k">Max number of points</param>
+        /// <param name="resultIndices">List where resulting indices will be stored</param>
+        /// <param name="resultDistances">Optional list where resulting distances will be stored</param>
         public void KNearest(KDTree tree, Vector3 queryPosition, int k, List<int> resultIndices, List<float> resultDistances = null) {
 
             //pooled heap arrays
@@ -77,8 +84,8 @@ namespace DataStructures.Query {
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
                         // testing other side
-                        if(node.positiveChild.Count != 0 &&
-                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= BSSR) {
+                        if(node.positiveChild.Count != 0
+                        && Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= BSSR) {
 
                             positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
                         }
@@ -97,8 +104,8 @@ namespace DataStructures.Query {
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
                         // testing other side
-                        if(node.negativeChild.Count != 0 &&
-                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= BSSR) {
+                        if(node.negativeChild.Count != 0
+                        && Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= BSSR) {
 
                             negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
                         }

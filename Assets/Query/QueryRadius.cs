@@ -70,8 +70,8 @@ namespace DataStructures.Query {
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
                         // testing other side
-                        if(node.positiveChild.Count != 0 &&
-                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
+                        if(node.positiveChild.Count != 0
+                        && Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
 
                             positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
                         }
@@ -90,8 +90,8 @@ namespace DataStructures.Query {
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
                         // testing other side
-                        if(node.negativeChild.Count != 0 &&
-                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
+                        if(node.negativeChild.Count != 0
+                        && Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
 
                             negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
                         }
@@ -111,7 +111,5 @@ namespace DataStructures.Query {
             }
         }
 
-
     }
-
 }
