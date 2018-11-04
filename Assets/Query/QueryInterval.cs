@@ -25,7 +25,7 @@ namespace DataStructures.Query {
             var rootQueryNode = PushGet(
 
                 rootNode,
-                rootNode.bounds.ClosestPoint(queryPosition)
+                rootNode.bounds.ClosestPoint((min + max) / 2)
             );
 
             KDQueryNode queryNode = null;
@@ -61,8 +61,8 @@ namespace DataStructures.Query {
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
                         // testing other side
-                        if(node.positiveChild.Count != 0 &&
-                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
+                        if(node.positiveChild.Count != 0
+                        && tempClosestPoint[partitionAxis] <= max[partitionAxis]) {
 
                             positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
                         }
@@ -81,20 +81,47 @@ namespace DataStructures.Query {
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
                         // testing other side
-                        if(node.negativeChild.Count != 0 &&
-                        Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
+                        if(node.negativeChild.Count != 0
+                        && tempClosestPoint[partitionAxis] >= min[partitionAxis]) {
 
                             negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
                         }
                     }
                 }
                 else {
-                    // LEAF
-                    for(int i = node.start; i < node.end; i++) {
 
-                        if(Vector3.SqrMagnitude(tree.points[tree.permutation[i]]) <= squaredRadius) {
+                    // LEAF
+                    // testing, if node bounds is inside the query interval
+                    if(node.bounds.min[0] >= min[0]
+                    && node.bounds.min[1] >= min[1]
+                    && node.bounds.min[2] >= min[2]
+
+                    && node.bounds.max[0] <= max[0]
+                    && node.bounds.max[1] <= max[1]
+                    && node.bounds.max[2] <= max[2]) {
+
+                        for(int i = node.start; i < node.end; i++) {
 
                             resultIndices.Add(i);
+                        }
+
+                    }
+                    else {
+
+                        for(int i = node.start; i < node.end; i++) {
+
+                            Vector3 v = tree.points[tree.permutation[i]];
+
+                            if(v[0] >= min[0]
+                            && v[1] >= min[1]
+                            && v[2] >= min[2]
+
+                            && v[0] <= max[0]
+                            && v[1] <= max[1]
+                            && v[2] <= max[2]) {
+
+                                resultIndices.Add(i);
+                            }
                         }
                     }
 

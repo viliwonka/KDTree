@@ -81,7 +81,7 @@ namespace DataStructures.Query {
 
         // Finds closest node (which doesn't necesarily contain closest point!!)
         //! TO FINISH, TRICKY MATH
-        public KDNode SearchNearestNode(KDTree tree, Vector3 qPosition) {
+        public KDNode NearestNode(KDTree tree, Vector3 qPosition) {
 
             ResetStack();
 
