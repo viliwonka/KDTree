@@ -49,7 +49,7 @@ namespace DataStructures {
         /// </summary>
         /// <param name="points">Accepts </param>
         /// <returns>Returns built KDTree</returns>
-        public KDTree Build(Vector3[] points, int maxPointsPerLeafNode = 5) {
+        public KDTree Build(Vector3[] points, int maxPointsPerLeafNode = 8) {
 
 #if FL_KD_DEBUG
             nodeCount = 1;
