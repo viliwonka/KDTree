@@ -27,7 +27,7 @@ namespace DataStructures.Query {
 
             var rootNode = tree.rootNode;
 
-            PushGet(rootNode, rootNode.bounds.ClosestPoint(queryPosition));
+            PushGet(rootNode, queryPosition);
 
             KDQueryNode queryNode = null;
             KDNode node = null;
@@ -37,6 +37,7 @@ namespace DataStructures.Query {
 
             // searching for index that points to closest point
             float minSqrDist = Single.MaxValue;
+
             int minIndex = 0;
 
             // KD search with pruning (don't visit areas which distance is more away than range)
@@ -60,9 +61,11 @@ namespace DataStructures.Query {
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
-                        float dist = Vector3.SqrMagnitude(tempClosestPoint - queryPosition);
+                        float sqrDist = tempClosestPoint[partitionAxis] - queryPosition[partitionAxis];
+                        sqrDist = sqrDist * sqrDist;
 
-                        if(node.positiveChild.Count != 0 && dist <= minSqrDist) {
+                        if(node.positiveChild.Count != 0
+                        && sqrDist <= minSqrDist) {
 
                             PushGet(node.positiveChild, tempClosestPoint);
                         }
@@ -73,9 +76,11 @@ namespace DataStructures.Query {
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
-                        float dist = Vector3.SqrMagnitude(tempClosestPoint - queryPosition);
+                        float sqrDist = tempClosestPoint[partitionAxis] - queryPosition[partitionAxis];
+                        sqrDist = sqrDist * sqrDist;
 
-                        if(node.negativeChild.Count != 0 && dist <= minSqrDist) {
+                        if(node.negativeChild.Count != 0
+                        && sqrDist <= minSqrDist) {
 
                             PushGet(node.negativeChild, tempClosestPoint);
                         }

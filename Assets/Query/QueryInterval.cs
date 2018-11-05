@@ -22,6 +22,7 @@ namespace DataStructures.Query {
             var rootNode = tree.rootNode;
 
             PushGet(
+
                 rootNode,
                 rootNode.bounds.ClosestPoint((min + max) / 2)
             );
@@ -99,7 +100,7 @@ namespace DataStructures.Query {
 
                         for(int i = node.start; i < node.end; i++) {
 
-                            resultIndices.Add(i);
+                            resultIndices.Add(tree.permutation[i]);
                         }
 
                     }

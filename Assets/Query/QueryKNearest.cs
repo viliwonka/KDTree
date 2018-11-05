@@ -42,7 +42,6 @@ namespace DataStructures.Query {
 
             ///Biggest Smallest Squared Radius
             float BSSR = Single.PositiveInfinity;
-            float BSR = Single.PositiveInfinity;
 
             var rootNode = tree.rootNode;
 
@@ -78,9 +77,12 @@ namespace DataStructures.Query {
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
+                        float sqrDist = tempClosestPoint[partitionAxis] - queryPosition[partitionAxis];
+                        sqrDist = sqrDist * sqrDist;
+
                         // testing other side
                         if(node.positiveChild.Count != 0
-                        && (Mathf.Abs(tempClosestPoint[partitionAxis] - queryPosition[partitionAxis])) <= BSR) {
+                        && sqrDist <= BSSR) {
 
                             PushGet(node.positiveChild, tempClosestPoint);
                         }
@@ -98,9 +100,12 @@ namespace DataStructures.Query {
                         // project the tempClosestPoint to other bound
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
+                        float sqrDist = tempClosestPoint[partitionAxis] - queryPosition[partitionAxis];
+                        sqrDist = sqrDist * sqrDist;
+
                         // testing other side
                         if(node.negativeChild.Count != 0
-                        && (Mathf.Abs(tempClosestPoint[partitionAxis] - queryPosition[partitionAxis])) <= BSR) {
+                        && sqrDist <= BSSR) {
 
                             PushGet(node.negativeChild, tempClosestPoint);
                         }
@@ -122,7 +127,6 @@ namespace DataStructures.Query {
 
                             if(heap.Full) {
                                 BSSR = heap.HeadHeapValue;
-                                BSR = (float)Math.Sqrt(BSSR);
                             }
                         }
                     }

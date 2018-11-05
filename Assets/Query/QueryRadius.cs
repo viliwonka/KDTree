@@ -30,10 +30,7 @@ namespace DataStructures.Query {
 
             var rootNode = tree.rootNode;
 
-            PushGet(
-                rootNode,
-                rootNode.bounds.ClosestPoint(queryPosition)
-            );
+            PushGet(rootNode, queryPosition);
 
             KDQueryNode queryNode = null;
             KDNode node = null;
@@ -64,9 +61,11 @@ namespace DataStructures.Query {
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
+                        float sqrDist = Vector3.SqrMagnitude(tempClosestPoint - queryPosition);
+
                         // testing other side
                         if(node.positiveChild.Count != 0
-                        && Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
+                        && sqrDist <= squaredRadius) {
 
                             PushGet(node.positiveChild, tempClosestPoint);
                         }
@@ -84,9 +83,11 @@ namespace DataStructures.Query {
                         // project the tempClosestPoint to other bound
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
+                        float sqrDist = Vector3.SqrMagnitude(tempClosestPoint - queryPosition);
+
                         // testing other side
                         if(node.negativeChild.Count != 0
-                        && Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
+                        && sqrDist <= squaredRadius) {
 
                             PushGet(node.negativeChild, tempClosestPoint);
                         }
@@ -97,9 +98,11 @@ namespace DataStructures.Query {
                     // LEAF
                     for(int i = node.start; i < node.end; i++) {
 
-                        if(Vector3.SqrMagnitude(tree.points[tree.permutation[i]] - queryPosition) <= squaredRadius) {
+                        int index = tree.permutation[i];
 
-                            resultIndices.Add(i);
+                        if(Vector3.SqrMagnitude(tree.points[index] - queryPosition) <= squaredRadius) {
+
+                            resultIndices.Add(index);
                         }
                     }
 

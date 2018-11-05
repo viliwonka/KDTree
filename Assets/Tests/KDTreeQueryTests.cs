@@ -67,7 +67,17 @@ namespace DataStructures.Tests {
 
             Vector3 size = 0.01f * Vector3.one;
 
+            for(int i = 0; i < pointCloud.Length; i++) {
+
+
+                Gizmos.DrawCube(pointCloud[i], size);
+            }
+
             var resultIndices = new List<int>();
+
+            Color markColor = Color.red;
+            markColor.a = 0.5f;
+            Gizmos.color = markColor;
 
             switch(QueryType) {
 
@@ -86,12 +96,16 @@ namespace DataStructures.Tests {
                 case QType.Radius: {
 
                     query.Radius(tree, transform.position, Radius, resultIndices);
+
+                    Gizmos.DrawWireSphere(transform.position, Radius);
                 }
                 break;
 
                 case QType.Interval: {
 
-                    query.Interval(tree, transform.position - IntervalSize, transform.position + IntervalSize, resultIndices);
+                    query.Interval(tree, transform.position - IntervalSize/2f, transform.position + IntervalSize/2f, resultIndices);
+
+                    Gizmos.DrawWireCube(transform.position, IntervalSize);
                 }
                 break;
 
@@ -99,19 +113,14 @@ namespace DataStructures.Tests {
                 break;
             }
 
-            for(int i = 0; i < pointCloud.Length; i++) {
-
-
-                Gizmos.DrawCube(pointCloud[i], size);
-            }
-
-            Color found = Color.red;
-            found.a = 0.5f;
-            Gizmos.color = found;
-
             for(int i = 0; i < resultIndices.Count; i++) {
 
                 Gizmos.DrawCube(pointCloud[resultIndices[i]], 2f * size);
+
+                if(QueryType == QType.KNearest || QueryType == QType.ClosestPoint) {
+
+                    Gizmos.DrawLine(pointCloud[resultIndices[i]], transform.position);
+                }
             }
 
         }

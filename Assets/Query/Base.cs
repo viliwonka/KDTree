@@ -89,13 +89,14 @@ namespace DataStructures.Query {
 
             var rootNode = tree.rootNode;
 
-            var rootQueryNode = PushGet(rootNode, rootNode.bounds.ClosestPoint(qPosition));
+            PushGet(
+                rootNode,
+                rootNode.bounds.ClosestPoint(qPosition)
+            );
 
             KDQueryNode queryNode = null;
             KDNode node = null;
 
-            KDQueryNode negativeQueryNode = null;
-            KDQueryNode positiveQueryNode = null;
 
             Vector3[] points = tree.points;
             int[] permutation = tree.permutation;
@@ -121,7 +122,7 @@ namespace DataStructures.Query {
 
                     if((tempClosestPoint[partitionAxis] - partitionCoord) < 0) {
 
-                        negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
+                        PushGet(node.negativeChild, tempClosestPoint);
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
@@ -129,19 +130,19 @@ namespace DataStructures.Query {
 
                         if(node.positiveChild.Count != 0 && dist <= minSqrDist) {
 
-                            positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
+                            PushGet(node.positiveChild, tempClosestPoint);
                         }
                     }
                     else {
 
-                        positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
+                        PushGet(node.positiveChild, tempClosestPoint);
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
                         if(node.negativeChild.Count != 0 &&
                         Vector3.SqrMagnitude(tempClosestPoint - qPosition) <= minSqrDist) {
 
-                            negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
+                            PushGet(node.negativeChild, tempClosestPoint);
                         }
                     }
                 }
