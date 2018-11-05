@@ -8,10 +8,10 @@
 ### It was designed:
 
 * to be working with Unity Vector3 structs, but can be modified to work with any other 3D (or 2D & 4D or higher) struct/arrays
-* to be fast & light for Construction & Reconstruction,
+* for speedy & light Construction & Reconstruction,
 * to be light on memory, everything is pooled,
-* to be fast for querying, 
-* queryable from multiple threads,
+* for fast querying, 
+* queryable from multiple threads (thread-safe),
 
 ### Query modes:
 * K-Nearest
@@ -21,11 +21,51 @@
 
 #### How to use
 
+
 ##### Construction
 
+First you need some array of points.
 
+Example:
+
+```cs
+    Vector3[] pointCloud = new Vector3[10000];
+
+    for(int i = 0; i < pointCloud.Length; i++)
+		pointCloud[i] = Random.insideUnitSphere
+```
+
+Then build the tree out of it. Note that original pointCloud shouldn't change, since tree is referencing it!
+
+```cs
+	KDTree tree = KDTreeBuilder.Instance.Build(pointCloud);
+```
+
+Now that tree has been constructed, make a KDQuery object. 
+
+Note: if you wish to do querying from multiple threads, then each own thread should have it's own KDQuery object.
+
+```cs
+    Query.KDQuery query = new Query.KDQuery();
+```
 
 ##### Querying
+
+For most query methods you need pre-initialized results list. 
+Results list will contain indexes for pointCloud array.
+
+List should be cleared; but it's not necesary to clear it (if you wish to do multiple queries), but this way you will have duplicate indexes.
+```cs
+    List<int> results = new List<int>();
+
+    query.Radius(tree, position, radius, results);
+
+    query.KNearest(tree, position, k, results);
+
+    query.Interval(tree, min, max, results);
+
+	int index = query.ClosestPoint(tree, position);
+```
 
 #### How it works?
 

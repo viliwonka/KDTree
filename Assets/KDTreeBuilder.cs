@@ -1,9 +1,9 @@
-﻿// This KDTree is not online algorithm, it assumess all data at once.
+﻿// This KDTree is not online algorithm - it assumess all data at once.
 // For every change in points array you will have to reconstruct the tree.
 //
 
 ///
-// If you want KDTree to output some statistics, use FL_KD_DEBUG:
+// If you want KDTree to output some statistics, use KD_DEBUG:
 // Node count
 // Average depth
 // Max depth
