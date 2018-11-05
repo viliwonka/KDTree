@@ -2,7 +2,7 @@
 
 ### Description
 
-3D KDTree for Unity, with fast construction and fast & thread-safe querying, with zero memory garbage.
+3D KDTree for Unity, with fast construction and fast & thread-safe querying, with minimal memory garbage.
 
 ### It was designed:
 
@@ -79,7 +79,7 @@ If you wish to do something with query results, then use it like this:
 ```cs
 for(int i = 0; i < results.Count; i++) {
 	
-	Vector3 p = pointCloud[i];
+	Vector3 p = pointCloud[results[i]];
 	Draw(p);
 }
 ```
