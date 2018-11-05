@@ -7,14 +7,13 @@
 // Node count
 // Average depth
 // Max depth
-//#define FL_KD_DEBUG
+//#define KD_DEBUG
 
 ///
 // If your input points are sorted (for example by X, then Y, then Z), you can use FL_KD_SORTED_DATA
 // example: points of planar mesh, or meshes with correct topology
 // enabling this will get you around ~10% speed on building KDTree if you input sorted data
 // but it will make it slower on random (non-sorted) data
-//#define FL_KD_SORTED_DATA
 
 using System.Collections;
 using System.Collections.Generic;
@@ -265,7 +264,7 @@ namespace DataStructures {
             posNode.end = parent.end;
             parent.positiveChild = posNode;
 
-#if !FL_KD_DEBUG
+#if !KD_DEBUG
             // Constraint function deciding if split should be continued
             if (ContinueSplit(negNode))
                 SplitNode(negNode);
@@ -308,56 +307,17 @@ namespace DataStructures {
             float negMax = Single.MinValue;
             float posMin = Single.MaxValue;
 
-#if FL_KD_SORTED_DATA
-            int count = end - start;
+            // this for loop section is used both for sorted and unsorted data
+            for (int i = start; i < end; i++) {
 
-            //31 = 4*8 - 1
-            // anything less than 8 will result in 0, which will destroy the purpose of jump
-            if (count > 31) {
+                if (points[permutation[i]][axis] < midPoint)
+                    negative = true;
+                else
+                    positive = true;
 
-                int jump = count / 8;
-
-                int offset = 0;
-                int index = start;
-
-                while (count > 0) {
-
-                    if (points[permutation[index]][axis] < midPoint)
-                        negative = true;
-                    else
-                        positive = true;
-
-                    if (negative && positive) //most of times this code will return this one - once it was confirmed there is atleast 1 point on both sides
-                        return midPoint;
-
-                    index += jump;
-
-                    if (index >= end) {
-                        offset++;
-                        index = start + offset;
-                    }
-
-                    count--;
-                }
+                if (negative == true && positive == true)
+                    return midPoint;
             }
-            else {
-#endif
-                // this for loop section is used both for sorted and unsorted data
-                for (int i = start; i < end; i++) {
-
-                    if (points[permutation[i]][axis] < midPoint)
-                        negative = true;
-                    else
-                        positive = true;
-
-                    if (negative == true && positive == true)
-                        return midPoint;
-                }
-
-#if FL_KD_SORTED_DATA
-    //just a closure for "sorted data" part (look at the top od document for more info)
-            }
-#endif
 
             if (negative) {
 
