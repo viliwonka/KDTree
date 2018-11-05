@@ -15,8 +15,8 @@ namespace DataStructures.Query {
 
     public partial class KDQuery {
 
-        protected KDQueryNode[] queryNodes;  // StackPool
-        protected int count = 0;             // size of stack
+        protected KDQueryNode[] queryNodes;  // queue array
+        protected int count = 0;             // size of queue
         protected int queryIndex = 0;        // current index at stack
 
         /// <summary>
@@ -47,12 +47,12 @@ namespace DataStructures.Query {
             return node;
         }
 
-        protected KDQueryNode PushGet(KDNode node, Vector3 tempClosestPoint) {
+        protected void PushGet(KDNode node, Vector3 tempClosestPoint) {
 
             var queryNode = PushGet();
             queryNode.node = node;
             queryNode.tempClosestPoint = tempClosestPoint;
-            return queryNode;
+            //return queryNode;
         }
 
         protected int LeftToProcess {

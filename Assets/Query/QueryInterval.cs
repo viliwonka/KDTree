@@ -15,15 +15,13 @@ namespace DataStructures.Query {
 
     public partial class KDQuery {
 
-        // TODO: to implement
         public void Interval(KDTree tree, Vector3 min, Vector3 max, List<int> resultIndices) {
 
             ResetStack();
 
             var rootNode = tree.rootNode;
 
-            var rootQueryNode = PushGet(
-
+            PushGet(
                 rootNode,
                 rootNode.bounds.ClosestPoint((min + max) / 2)
             );
@@ -31,8 +29,6 @@ namespace DataStructures.Query {
             KDQueryNode queryNode = null;
             KDNode node = null;
 
-            KDQueryNode negativeQueryNode = null;
-            KDQueryNode positiveQueryNode = null;
 
             // KD search with pruning (don't visit areas which distance is more away than range)
             // Recursion done on Stack
@@ -56,7 +52,7 @@ namespace DataStructures.Query {
 
                         // tempClosestPoint is inside negative side
                         // assign it to negativeChild
-                        negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
+                        PushGet(node.negativeChild, tempClosestPoint);
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
@@ -64,7 +60,7 @@ namespace DataStructures.Query {
                         if(node.positiveChild.Count != 0
                         && tempClosestPoint[partitionAxis] <= max[partitionAxis]) {
 
-                            positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
+                            PushGet(node.positiveChild, tempClosestPoint);
                         }
                     }
                     else {
@@ -75,7 +71,7 @@ namespace DataStructures.Query {
 
                         // tempClosestPoint is inside positive side
                         // assign it to positiveChild
-                        positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
+                        PushGet(node.positiveChild, tempClosestPoint);
 
                         // project the tempClosestPoint to other bound
                         tempClosestPoint[partitionAxis] = partitionCoord;
@@ -84,7 +80,7 @@ namespace DataStructures.Query {
                         if(node.negativeChild.Count != 0
                         && tempClosestPoint[partitionAxis] >= min[partitionAxis]) {
 
-                            negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
+                            PushGet(node.negativeChild, tempClosestPoint);
                         }
                     }
                 }
@@ -112,7 +108,9 @@ namespace DataStructures.Query {
 
                         for(int i = node.start; i < node.end; i++) {
 
-                            Vector3 v = tree.points[tree.permutation[i]];
+                            int index = tree.permutation[i];
+
+                            Vector3 v = tree.points[index];
 
                             if(v[0] >= min[0]
                             && v[1] >= min[1]
@@ -122,7 +120,7 @@ namespace DataStructures.Query {
                             && v[1] <= max[1]
                             && v[2] <= max[2]) {
 
-                                resultIndices.Add(i);
+                                resultIndices.Add(index);
                             }
                         }
                     }

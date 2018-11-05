@@ -6,7 +6,7 @@ using Debug = UnityEngine.Debug;
 
 namespace DataStructures.Tests {
 
-    public class KDTreeTest : MonoBehaviour {
+    public class KDTreeBenchmark : MonoBehaviour {
 
         Vector3[] points10k;
         Vector3[] points100k;

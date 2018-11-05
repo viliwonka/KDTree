@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-// TODO: finish
 namespace DataStructures.Query {
 
     public partial class KDQuery {
@@ -31,17 +30,13 @@ namespace DataStructures.Query {
 
             var rootNode = tree.rootNode;
 
-            var rootQueryNode = PushGet(
-
+            PushGet(
                 rootNode,
                 rootNode.bounds.ClosestPoint(queryPosition)
             );
 
             KDQueryNode queryNode = null;
             KDNode node = null;
-
-            KDQueryNode negativeQueryNode = null;
-            KDQueryNode positiveQueryNode = null;
 
             // KD search with pruning (don't visit areas which distance is more away than range)
             // Recursion done on Stack
@@ -65,7 +60,7 @@ namespace DataStructures.Query {
 
                         // tempClosestPoint is inside negative side
                         // assign it to negativeChild
-                        negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
+                        PushGet(node.negativeChild, tempClosestPoint);
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
@@ -73,7 +68,7 @@ namespace DataStructures.Query {
                         if(node.positiveChild.Count != 0
                         && Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
 
-                            positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
+                            PushGet(node.positiveChild, tempClosestPoint);
                         }
                     }
                     else {
@@ -84,7 +79,7 @@ namespace DataStructures.Query {
 
                         // tempClosestPoint is inside positive side
                         // assign it to positiveChild
-                        positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
+                        PushGet(node.positiveChild, tempClosestPoint);
 
                         // project the tempClosestPoint to other bound
                         tempClosestPoint[partitionAxis] = partitionCoord;
@@ -93,15 +88,16 @@ namespace DataStructures.Query {
                         if(node.negativeChild.Count != 0
                         && Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= squaredRadius) {
 
-                            negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
+                            PushGet(node.negativeChild, tempClosestPoint);
                         }
                     }
                 }
                 else {
+
                     // LEAF
                     for(int i = node.start; i < node.end; i++) {
 
-                        if(Vector3.SqrMagnitude(tree.points[tree.permutation[i]]) <= squaredRadius) {
+                        if(Vector3.SqrMagnitude(tree.points[tree.permutation[i]] - queryPosition) <= squaredRadius) {
 
                             resultIndices.Add(i);
                         }

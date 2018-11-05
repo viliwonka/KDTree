@@ -42,20 +42,15 @@ namespace DataStructures.Query {
 
             ///Biggest Smallest Squared Radius
             float BSSR = Single.PositiveInfinity;
+            float BSR = Single.PositiveInfinity;
 
             var rootNode = tree.rootNode;
 
-            var rootQueryNode = PushGet(
-
-                rootNode,
-                rootNode.bounds.ClosestPoint(queryPosition)
-            );
+            PushGet(rootNode, queryPosition);
 
             KDQueryNode queryNode = null;
             KDNode node = null;
 
-            KDQueryNode negativeQueryNode = null;
-            KDQueryNode positiveQueryNode = null;
 
             // KD search with pruning (don't visit areas which distance is more away than range)
             // Recursion done on Stack
@@ -79,15 +74,15 @@ namespace DataStructures.Query {
 
                         // tempClosestPoint is inside negative side
                         // assign it to negativeChild
-                        negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
+                        PushGet(node.negativeChild, tempClosestPoint);
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
                         // testing other side
                         if(node.positiveChild.Count != 0
-                        && Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= BSSR) {
+                        && (Mathf.Abs(tempClosestPoint[partitionAxis] - queryPosition[partitionAxis])) <= BSR) {
 
-                            positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
+                            PushGet(node.positiveChild, tempClosestPoint);
                         }
                     }
                     else {
@@ -98,16 +93,16 @@ namespace DataStructures.Query {
 
                         // tempClosestPoint is inside positive side
                         // assign it to positiveChild
-                        positiveQueryNode = PushGet(node.positiveChild, tempClosestPoint);
+                        PushGet(node.positiveChild, tempClosestPoint);
 
                         // project the tempClosestPoint to other bound
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
                         // testing other side
                         if(node.negativeChild.Count != 0
-                        && Vector3.SqrMagnitude(tempClosestPoint - queryPosition) <= BSSR) {
+                        && (Mathf.Abs(tempClosestPoint[partitionAxis] - queryPosition[partitionAxis])) <= BSR) {
 
-                            negativeQueryNode = PushGet(node.negativeChild, tempClosestPoint);
+                            PushGet(node.negativeChild, tempClosestPoint);
                         }
                     }
                 }
@@ -117,14 +112,17 @@ namespace DataStructures.Query {
                     // LEAF
                     for(int i = node.start; i < node.end; i++) {
 
-                        dist = Vector3.SqrMagnitude(tree.points[tree.permutation[i]]);
+                        int index = tree.permutation[i];
+
+                        dist = Vector3.SqrMagnitude(tree.points[index] - queryPosition);
 
                         if(dist <= BSSR) {
 
-                            heap.Push(dist);
+                            heap.Push(index, dist);
 
                             if(heap.Full) {
                                 BSSR = heap.HeadHeapValue;
+                                BSR = (float)Math.Sqrt(BSSR);
                             }
                         }
                     }
@@ -133,6 +131,7 @@ namespace DataStructures.Query {
             }
 
             heap.FlushResult(resultIndices, resultDistances);
+
         }
 
     }

@@ -27,7 +27,7 @@ namespace DataStructures {
         }
 
         // in lots of cases, max head gets removed
-        public void Push(float h) {
+        public virtual void Push(float h) {
 
             // if heap full
             if(nodesCount == maxSize) {
@@ -201,14 +201,46 @@ namespace DataStructures {
             objs[B] = tempObjs;
         }
 
+        public override void Push(float h) {
+            throw new System.ArgumentException("Use Push(T, float)!");
+        }
+
+        public void Push(T obj, float h) {
+
+            // if heap full
+            if(nodesCount == maxSize) {
+
+                // if Heads priority is smaller than input priority, then ignore that item
+                if(HeadHeapValue < h) {
+
+                    return;
+                }
+                else {
+
+                    heap[1] = h;   // remove top element
+                    objs[1] = obj;
+                    BubbleDown(1); // bubble it down
+                }
+            }
+            else {
+
+                nodesCount++;
+                heap[nodesCount] = h;
+                objs[nodesCount] = obj;
+                BubbleUp(nodesCount);
+            }
+        }
+
         public void FlushResult(List<T> resultList, List<float> heapList = null) {
 
-            for(int i = 1; i < Count;i++) {
+            int count = nodesCount + 1;
+
+            for(int i = 1; i < count; i++) {
                 resultList.Add(objs[i]);
             }
 
             if(heapList != null) {
-                for(int i = 1; i < Count; i++) {
+                for(int i = 1; i < count; i++) {
                     heapList.Add(heap[i]);
                 }
             }
