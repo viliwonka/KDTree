@@ -33,7 +33,7 @@ namespace DataStructures.Tests {
 
         void Awake() {
 
-            pointCloud = new Vector3[10000];
+            pointCloud = new Vector3[20000];
 
             for(int i = 0; i < pointCloud.Length / 2; i++) {
 
@@ -82,7 +82,7 @@ namespace DataStructures.Tests {
 
                 case QType.ClosestPoint: {
 
-                    resultIndices.Add(query.ClosestPoint(tree, transform.position));
+                    query.ClosestPoint(tree, transform.position, resultIndices);
                 }
                 break;
 
@@ -116,11 +116,15 @@ namespace DataStructures.Tests {
 
                 Gizmos.DrawCube(pointCloud[resultIndices[i]], 2f * size);
 
-                if(QueryType == QType.KNearest || QueryType == QType.ClosestPoint) {
+                /*if(QueryType == QType.KNearest || QueryType == QType.ClosestPoint) {
 
                     Gizmos.DrawLine(pointCloud[resultIndices[i]], transform.position);
-                }
+                }*/
             }
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawCube(transform.position, 4f * size);
+
 
 
             if(DrawQueryNodes) {

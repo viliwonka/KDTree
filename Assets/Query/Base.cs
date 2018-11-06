@@ -87,7 +87,7 @@ namespace DataStructures.Query {
 
             KDQueryNode heapNode = minHeap.PopObj();
 
-            queueArray[queryIndex].node = heapNode.node;
+            queueArray[queryIndex]= heapNode;
             queryIndex++;
 
             return heapNode;

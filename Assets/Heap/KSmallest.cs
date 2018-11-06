@@ -21,7 +21,7 @@ namespace DataStructures.Heap {
             if(nodesCount == maxSize) {
 
                 // if Heads priority is smaller than input priority, then ignore that item
-                if(HeadHeapValue < h) {
+                if(HeadValue < h) {
 
                     return;
                 }
@@ -115,7 +115,7 @@ namespace DataStructures.Heap {
             if(nodesCount == maxSize) {
 
                 // if Heads priority is smaller than input priority, then ignore that item
-                if(HeadHeapValue < h) {
+                if(HeadValue < h) {
 
                     return;
                 }

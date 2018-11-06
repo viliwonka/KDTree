@@ -7,6 +7,8 @@
 
 // KDQuery can switch target KDTree, on which querying is done.
 
+#define KDTREE_VISUAL_DEBUG
+
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -58,10 +60,8 @@ namespace DataStructures.Query {
             float partitionCoord;
 
             Vector3 tempClosestPoint;
-            Vector3 tempClosestPoint2;
 
-            // KD search with pruning (don't visit areas which distance is more away than range)
-            // Recursion done on Stack
+            // searching
             while(minHeap.Count > 0) {
 
                 queryNode = PopFromHeap();
@@ -84,23 +84,15 @@ namespace DataStructures.Query {
                         // so we don't need to test for distance
                         // push to stack for later querying
 
-                        // tempClosestPoint is inside negative side
-                        // assign it to negativeChild
+                        PushToHeap(node.negativeChild, tempClosestPoint, queryPosition);
+                        // project the tempClosestPoint to other bound
+                        tempClosestPoint[partitionAxis] = partitionCoord;
 
-                        float sqrDist = partitionCoord - queryPosition[partitionAxis];
-                        sqrDist = sqrDist * sqrDist;
+                        if(node.positiveChild.Count != 0) {
 
-                        // testing other side
-                        if(node.positiveChild.Count != 0
-                        && sqrDist <= BSSR) {
-
-                            tempClosestPoint2 = tempClosestPoint;
-                            tempClosestPoint2[partitionAxis] = partitionCoord;
-
-                            PushToHeap(node.positiveChild, tempClosestPoint2, queryPosition);
+                            PushToHeap(node.positiveChild, tempClosestPoint, queryPosition);
                         }
 
-                        PushToHeap(node.negativeChild, tempClosestPoint, queryPosition);
                     }
                     else {
 
@@ -108,44 +100,33 @@ namespace DataStructures.Query {
                         // so we don't need to test for distance
                         // push to stack for later querying
 
-
+                        PushToHeap(node.positiveChild, tempClosestPoint, queryPosition);
                         // project the tempClosestPoint to other bound
-                        //tempClosestPoint[partitionAxis] = partitionCoord;
+                        tempClosestPoint[partitionAxis] = partitionCoord;
 
-                        float sqrDist = partitionCoord - queryPosition[partitionAxis];
-                        sqrDist = sqrDist * sqrDist;
-
-                        // testing other side
-                        if(node.negativeChild.Count != 0
-                        && sqrDist <= BSSR) {
-
-                            tempClosestPoint2 = tempClosestPoint;
-                            tempClosestPoint2[partitionAxis] = partitionCoord;
+                        if(node.positiveChild.Count != 0) {
 
                             PushToHeap(node.negativeChild, tempClosestPoint, queryPosition);
                         }
 
-                        // tempClosestPoint is inside positive side
-                        // assign it to positiveChild
-                        PushToHeap(node.positiveChild, tempClosestPoint, queryPosition);
                     }
                 }
                 else {
 
-                    float dist;
+                    float sqrDist;
                     // LEAF
                     for(int i = node.start; i < node.end; i++) {
 
                         int index = tree.permutation[i];
 
-                        dist = Vector3.SqrMagnitude(tree.points[index] - queryPosition);
+                        sqrDist = Vector3.SqrMagnitude(tree.points[index] - queryPosition);
 
-                        if(dist <= BSSR) {
+                        if(sqrDist <= BSSR) {
 
-                            kHeap.PushObj(index, dist);
+                            kHeap.PushObj(index, sqrDist);
 
                             if(kHeap.Full) {
-                                BSSR = kHeap.HeadHeapValue;
+                                BSSR = kHeap.HeadValue;
                             }
                         }
                     }

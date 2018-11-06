@@ -7,105 +7,120 @@
 
 // KDQuery can switch target KDTree, on which querying is done.
 
+#define KDTREE_VISUAL_DEBUG
+
 using System.Collections.Generic;
 using UnityEngine;
 using System;
 
 namespace DataStructures.Query {
 
+    using Heap;
+
     public partial class KDQuery {
 
-        /// <summary>
-        /// Returns an index to closest point
-        /// </summary>
-        /// <param name="tree">Tree to do search on</param>
-        /// <param name="queryPosition">Position</param>
-        /// <returns></returns>
-        public int ClosestPoint(KDTree tree, Vector3 queryPosition) {
+        public void ClosestPoint(KDTree tree, Vector3 queryPosition, List<int> resultIndices, List<float> resultDistances = null) {
 
             Reset();
 
+            ///Smallest Squared Radius
+
+            int smallestIndex = 0;
+            float SSR = Single.PositiveInfinity;
+
+
             var rootNode = tree.rootNode;
 
-            PushToQueue(rootNode, queryPosition);
+            Vector3 rootClosestPoint = rootNode.bounds.ClosestPoint(queryPosition);
+
+            PushToHeap(rootNode, rootClosestPoint, queryPosition);
 
             KDQueryNode queryNode = null;
             KDNode node = null;
 
-            Vector3[] points = tree.points;
-            int[] permutation = tree.permutation;
+            int partitionAxis;
+            float partitionCoord;
 
-            // searching for index that points to closest point
-            float minSqrDist = Single.MaxValue;
+            Vector3 tempClosestPoint;
 
-            int minIndex = 0;
+            // searching
+            while(minHeap.Count > 0) {
 
-            // KD search with pruning (don't visit areas which distance is more away than range)
-            // Recursion done on Stack
-            while(LeftToProcess > 0) {
+                queryNode = PopFromHeap();
 
-                queryNode = PopFromQueue();
+                if(queryNode.distance > SSR)
+                    continue;
+
                 node = queryNode.node;
 
-                // pruning!
                 if(!node.Leaf) {
 
-                    int partitionAxis = node.partitionAxis;
-                    float partitionCoord = node.partitionCoordinate;
+                    partitionAxis = node.partitionAxis;
+                    partitionCoord = node.partitionCoordinate;
 
-                    Vector3 tempClosestPoint = queryNode.tempClosestPoint;
+                    tempClosestPoint = queryNode.tempClosestPoint;
 
                     if((tempClosestPoint[partitionAxis] - partitionCoord) < 0) {
 
-                        PushToQueue(node.negativeChild, tempClosestPoint);
+                        // we already know we are on the side of negative bound/node,
+                        // so we don't need to test for distance
+                        // push to stack for later querying
 
+                        PushToHeap(node.negativeChild, tempClosestPoint, queryPosition);
+                        // project the tempClosestPoint to other bound
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
-                        float sqrDist = tempClosestPoint[partitionAxis] - queryPosition[partitionAxis];
-                        sqrDist = sqrDist * sqrDist;
+                        if(node.positiveChild.Count != 0) {
 
-                        if(node.positiveChild.Count != 0
-                        && sqrDist <= minSqrDist) {
-
-                            PushToQueue(node.positiveChild, tempClosestPoint);
+                            PushToHeap(node.positiveChild, tempClosestPoint, queryPosition);
                         }
+
                     }
                     else {
 
-                        PushToQueue(node.positiveChild, tempClosestPoint);
+                        // we already know we are on the side of positive bound/node,
+                        // so we don't need to test for distance
+                        // push to stack for later querying
 
+                        PushToHeap(node.positiveChild, tempClosestPoint, queryPosition);
+                        // project the tempClosestPoint to other bound
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
-                        float sqrDist = tempClosestPoint[partitionAxis] - queryPosition[partitionAxis];
-                        sqrDist = sqrDist * sqrDist;
+                        if(node.positiveChild.Count != 0) {
 
-                        if(node.negativeChild.Count != 0
-                        && sqrDist <= minSqrDist) {
-
-                            PushToQueue(node.negativeChild, tempClosestPoint);
+                            PushToHeap(node.negativeChild, tempClosestPoint, queryPosition);
                         }
+
                     }
                 }
                 else {
 
+                    float sqrDist;
+                    // LEAF
                     for(int i = node.start; i < node.end; i++) {
 
-                        int index = permutation[i];
+                        int index = tree.permutation[i];
 
-                        float sqrDist = Vector3.SqrMagnitude(queryPosition - points[index]);
+                        sqrDist = Vector3.SqrMagnitude(tree.points[index] - queryPosition);
 
-                        if(sqrDist < minSqrDist) {
-                            minSqrDist = sqrDist;
-                            minIndex = index;
+                        if(sqrDist <= SSR) {
+
+                            SSR = sqrDist;
+                            smallestIndex = index;
                         }
                     }
 
-                    // leaf node
                 }
             }
 
-            return minIndex;
+            resultIndices.Add(smallestIndex);
+
+            if(resultDistances != null) {
+                resultDistances.Add(SSR);
+            }
+
         }
 
     }
+
 }

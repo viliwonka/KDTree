@@ -18,7 +18,7 @@ namespace DataStructures.Heap {
 
         public int Count { get { return nodesCount; } }
 
-        public float HeadHeapValue { get { return heap[1]; } }
+        public float HeadValue { get { return heap[1]; } }
 
         public void Clear() {
             nodesCount = 0;

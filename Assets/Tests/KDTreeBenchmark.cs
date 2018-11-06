@@ -178,7 +178,7 @@ namespace DataStructures.Tests {
             float radius = 0.25f;
 
             results.Clear();
-            query.ClosestPoint(tree, position);
+            query.ClosestPoint(tree, position, results);
 
             stopwatch.Stop();
 

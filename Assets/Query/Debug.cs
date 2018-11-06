@@ -18,14 +18,17 @@ namespace DataStructures.Query {
         // uses gizmos
         public void DrawLastQuery() {
 
-            Color green = Color.green;
-            Color red   = Color.red;
+            Color start = Color.red;
+            Color end   = Color.green;
+
+            start.a = 0.25f;
+            end.a = 0.25f;
 
             for(int i = 0; i < queryIndex; i++) {
 
                 float val = i / (float)queryIndex;
 
-                Gizmos.color = Color.Lerp(red, green, val);
+                Gizmos.color = Color.Lerp(end, start, val);
 
                 Bounds b = queueArray[i].node.bounds.Bounds;
 
