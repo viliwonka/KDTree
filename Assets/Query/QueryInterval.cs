@@ -17,11 +17,11 @@ namespace DataStructures.Query {
 
         public void Interval(KDTree tree, Vector3 min, Vector3 max, List<int> resultIndices) {
 
-            ResetStack();
+            Reset();
 
             var rootNode = tree.rootNode;
 
-            PushGet(
+            PushToQueue(
 
                 rootNode,
                 rootNode.bounds.ClosestPoint((min + max) / 2)
@@ -35,7 +35,7 @@ namespace DataStructures.Query {
             // Recursion done on Stack
             while(LeftToProcess > 0) {
 
-                queryNode = Pop();
+                queryNode = PopFromQueue();
                 node = queryNode.node;
 
                 if(!node.Leaf) {
@@ -53,7 +53,7 @@ namespace DataStructures.Query {
 
                         // tempClosestPoint is inside negative side
                         // assign it to negativeChild
-                        PushGet(node.negativeChild, tempClosestPoint);
+                        PushToQueue(node.negativeChild, tempClosestPoint);
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
@@ -61,7 +61,7 @@ namespace DataStructures.Query {
                         if(node.positiveChild.Count != 0
                         && tempClosestPoint[partitionAxis] <= max[partitionAxis]) {
 
-                            PushGet(node.positiveChild, tempClosestPoint);
+                            PushToQueue(node.positiveChild, tempClosestPoint);
                         }
                     }
                     else {
@@ -72,7 +72,7 @@ namespace DataStructures.Query {
 
                         // tempClosestPoint is inside positive side
                         // assign it to positiveChild
-                        PushGet(node.positiveChild, tempClosestPoint);
+                        PushToQueue(node.positiveChild, tempClosestPoint);
 
                         // project the tempClosestPoint to other bound
                         tempClosestPoint[partitionAxis] = partitionCoord;
@@ -81,7 +81,7 @@ namespace DataStructures.Query {
                         if(node.negativeChild.Count != 0
                         && tempClosestPoint[partitionAxis] >= min[partitionAxis]) {
 
-                            PushGet(node.negativeChild, tempClosestPoint);
+                            PushToQueue(node.negativeChild, tempClosestPoint);
                         }
                     }
                 }

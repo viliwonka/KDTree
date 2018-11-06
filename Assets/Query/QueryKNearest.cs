@@ -13,10 +13,11 @@ using System;
 
 namespace DataStructures.Query {
 
+    using Heap;
+
     public partial class KDQuery {
 
-        SortedList<int, LimitedMaxHeap<int>> _heaps = new SortedList<int, LimitedMaxHeap<int>>();
-
+        SortedList<int, KSmallestHeap<int>> _heaps = new SortedList<int, KSmallestHeap<int>>();
         /// <summary>
         /// Returns indices to k closest points, and optionaly can return distances
         /// </summary>
@@ -27,88 +28,106 @@ namespace DataStructures.Query {
         /// <param name="resultDistances">Optional list where resulting distances will be stored</param>
         public void KNearest(KDTree tree, Vector3 queryPosition, int k, List<int> resultIndices, List<float> resultDistances = null) {
 
-            //pooled heap arrays
-            LimitedMaxHeap<int> heap;
+            // pooled heap arrays
+            KSmallestHeap<int> kHeap;
 
-            _heaps.TryGetValue(k, out heap);
+            _heaps.TryGetValue(k, out kHeap);
 
-            if(heap == null) {
-                heap = new LimitedMaxHeap<int>(k);
-                _heaps.Add(k, heap);
+            if(kHeap == null) {
+
+                kHeap = new KSmallestHeap<int>(k);
+                _heaps.Add(k, kHeap);
             }
 
-            heap.Clear();
-            ResetStack();
+            kHeap.Clear();
+            Reset();
 
             ///Biggest Smallest Squared Radius
             float BSSR = Single.PositiveInfinity;
 
             var rootNode = tree.rootNode;
 
-            PushGet(rootNode, queryPosition);
+            Vector3 rootClosestPoint = rootNode.bounds.ClosestPoint(queryPosition);
+
+            PushToHeap(rootNode, rootClosestPoint, queryPosition);
 
             KDQueryNode queryNode = null;
             KDNode node = null;
 
+            int partitionAxis;
+            float partitionCoord;
+
+            Vector3 tempClosestPoint;
+            Vector3 tempClosestPoint2;
 
             // KD search with pruning (don't visit areas which distance is more away than range)
             // Recursion done on Stack
-            while(LeftToProcess > 0) {
+            while(minHeap.Count > 0) {
 
-                queryNode = Pop();
+                queryNode = PopFromHeap();
+
+                if(queryNode.distance > BSSR)
+                    continue;
+
                 node = queryNode.node;
 
                 if(!node.Leaf) {
 
-                    int partitionAxis = node.partitionAxis;
-                    float partitionCoord = node.partitionCoordinate;
+                    partitionAxis = node.partitionAxis;
+                    partitionCoord = node.partitionCoordinate;
 
-                    Vector3 tempClosestPoint = queryNode.tempClosestPoint;
+                    tempClosestPoint = queryNode.tempClosestPoint;
 
                     if((tempClosestPoint[partitionAxis] - partitionCoord) < 0) {
 
-                        // we already know we are inside negative bound/node,
+                        // we already know we are on the side of negative bound/node,
                         // so we don't need to test for distance
                         // push to stack for later querying
 
                         // tempClosestPoint is inside negative side
                         // assign it to negativeChild
-                        PushGet(node.negativeChild, tempClosestPoint);
 
-                        tempClosestPoint[partitionAxis] = partitionCoord;
-
-                        float sqrDist = tempClosestPoint[partitionAxis] - queryPosition[partitionAxis];
+                        float sqrDist = partitionCoord - queryPosition[partitionAxis];
                         sqrDist = sqrDist * sqrDist;
 
                         // testing other side
                         if(node.positiveChild.Count != 0
                         && sqrDist <= BSSR) {
 
-                            PushGet(node.positiveChild, tempClosestPoint);
+                            tempClosestPoint2 = tempClosestPoint;
+                            tempClosestPoint2[partitionAxis] = partitionCoord;
+
+                            PushToHeap(node.positiveChild, tempClosestPoint2, queryPosition);
                         }
+
+                        PushToHeap(node.negativeChild, tempClosestPoint, queryPosition);
                     }
                     else {
 
-                        // we already know we are inside positive bound/node,
+                        // we already know we are on the side of positive bound/node,
                         // so we don't need to test for distance
                         // push to stack for later querying
 
-                        // tempClosestPoint is inside positive side
-                        // assign it to positiveChild
-                        PushGet(node.positiveChild, tempClosestPoint);
 
                         // project the tempClosestPoint to other bound
-                        tempClosestPoint[partitionAxis] = partitionCoord;
+                        //tempClosestPoint[partitionAxis] = partitionCoord;
 
-                        float sqrDist = tempClosestPoint[partitionAxis] - queryPosition[partitionAxis];
+                        float sqrDist = partitionCoord - queryPosition[partitionAxis];
                         sqrDist = sqrDist * sqrDist;
 
                         // testing other side
                         if(node.negativeChild.Count != 0
                         && sqrDist <= BSSR) {
 
-                            PushGet(node.negativeChild, tempClosestPoint);
+                            tempClosestPoint2 = tempClosestPoint;
+                            tempClosestPoint2[partitionAxis] = partitionCoord;
+
+                            PushToHeap(node.negativeChild, tempClosestPoint, queryPosition);
                         }
+
+                        // tempClosestPoint is inside positive side
+                        // assign it to positiveChild
+                        PushToHeap(node.positiveChild, tempClosestPoint, queryPosition);
                     }
                 }
                 else {
@@ -123,10 +142,10 @@ namespace DataStructures.Query {
 
                         if(dist <= BSSR) {
 
-                            heap.Push(index, dist);
+                            kHeap.PushObj(index, dist);
 
-                            if(heap.Full) {
-                                BSSR = heap.HeadHeapValue;
+                            if(kHeap.Full) {
+                                BSSR = kHeap.HeadHeapValue;
                             }
                         }
                     }
@@ -134,7 +153,7 @@ namespace DataStructures.Query {
                 }
             }
 
-            heap.FlushResult(resultIndices, resultDistances);
+            kHeap.FlushResult(resultIndices, resultDistances);
 
         }
 

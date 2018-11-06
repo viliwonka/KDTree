@@ -22,6 +22,8 @@ namespace DataStructures.Tests {
         [Range(0f, 1f)]
         public float Radius = 0.1f;
 
+        public bool DrawQueryNodes = true;
+
         public Vector3 IntervalSize = new Vector3(0.2f, 0.2f, 0.2f);
 
         Vector3[] pointCloud;
@@ -32,7 +34,6 @@ namespace DataStructures.Tests {
         void Awake() {
 
             pointCloud = new Vector3[10000];
-
 
             for(int i = 0; i < pointCloud.Length / 2; i++) {
 
@@ -52,12 +53,10 @@ namespace DataStructures.Tests {
                 pointCloud[i] = Vector3.one * 1f + Random.value * U + Random.value * V + Random.insideUnitSphere * 0.1f;
             }
 
-
             tree = KDTreeBuilder.Instance.Build(pointCloud);
 
             query = new Query.KDQuery();
         }
-
 
         private void OnDrawGizmos() {
 
@@ -123,6 +122,10 @@ namespace DataStructures.Tests {
                 }
             }
 
+
+            if(DrawQueryNodes) {
+                query.DrawLastQuery();
+            }
         }
     }
 }

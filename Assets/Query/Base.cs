@@ -15,7 +15,8 @@ namespace DataStructures.Query {
 
     public partial class KDQuery {
 
-        protected KDQueryNode[] queryNodes;  // queue array
+        protected KDQueryNode[] queueArray;  // queue array
+        protected Heap.MinHeap<KDQueryNode>  minHeap; //heap for k-nearest
         protected int count = 0;             // size of queue
         protected int queryIndex = 0;        // current index at stack
 
@@ -24,22 +25,22 @@ namespace DataStructures.Query {
         /// The returned reference to node stays in stack
         /// </summary>
         /// <returns>Reference to pooled node</returns>
-        private KDQueryNode PushGet() {
+        private KDQueryNode PushGetQueue() {
 
             KDQueryNode node = null;
 
-            if (count < queryNodes.Length) {
+            if (count < queueArray.Length) {
 
-                if (queryNodes[count] == null)
-                    queryNodes[count] = node = new KDQueryNode();
+                if (queueArray[count] == null)
+                    queueArray[count] = node = new KDQueryNode();
                 else
-                    node = queryNodes[count];
+                    node = queueArray[count];
             }
             else {
 
                 // automatic resize of pool
-                Array.Resize(ref queryNodes, queryNodes.Length * 2);
-                node = queryNodes[count] = new KDQueryNode();
+                Array.Resize(ref queueArray, queueArray.Length * 2);
+                node = queueArray[count] = new KDQueryNode();
             }
 
             count++;
@@ -47,12 +48,22 @@ namespace DataStructures.Query {
             return node;
         }
 
-        protected void PushGet(KDNode node, Vector3 tempClosestPoint) {
+        protected void PushToQueue(KDNode node, Vector3 tempClosestPoint) {
 
-            var queryNode = PushGet();
+            var queryNode = PushGetQueue();
             queryNode.node = node;
             queryNode.tempClosestPoint = tempClosestPoint;
-            //return queryNode;
+        }
+
+        protected void PushToHeap(KDNode node, Vector3 tempClosestPoint, Vector3 queryPosition) {
+
+            var queryNode = PushGetQueue();
+            queryNode.node = node;
+            queryNode.tempClosestPoint = tempClosestPoint;
+
+            float sqrDist = Vector3.SqrMagnitude(tempClosestPoint - queryPosition);
+            queryNode.distance = sqrDist;
+            minHeap.PushObj(queryNode, sqrDist);
         }
 
         protected int LeftToProcess {
@@ -64,26 +75,39 @@ namespace DataStructures.Query {
 
         // just gets unprocessed node from stack
         // increases queryIndex
-        protected KDQueryNode Pop() {
+        protected KDQueryNode PopFromQueue() {
 
-            var node = queryNodes[queryIndex];
+            var node = queueArray[queryIndex];
             queryIndex++;
+
             return node;
         }
 
-        protected void ResetStack() {
+        protected KDQueryNode PopFromHeap() {
+
+            KDQueryNode heapNode = minHeap.PopObj();
+
+            queueArray[queryIndex].node = heapNode.node;
+            queryIndex++;
+
+            return heapNode;
+        }
+
+        protected void Reset() {
 
             count = 0;
             queryIndex = 0;
+            minHeap.Clear();
         }
 
-        public KDQuery(int initialStackSize = 2048) {
-            queryNodes = new KDQueryNode[initialStackSize];
+        public KDQuery(int queryNodesContainersInitialSize = 2048) {
+            queueArray = new KDQueryNode[queryNodesContainersInitialSize];
+            minHeap = new Heap.MinHeap<KDQueryNode>(queryNodesContainersInitialSize);
         }
 
         // Finds closest node (which doesn't necesarily contain closest point!!)
         //! TO FINISH, TRICKY MATH
-        public KDNode NearestNode(KDTree tree, Vector3 qPosition) {
+        /*public KDNode NearestNode(KDTree tree, Vector3 qPosition) {
 
             ResetStack();
 
@@ -160,7 +184,9 @@ namespace DataStructures.Query {
             }
 
             return minNode;
-        }
+        }*/
+
+
     }
 
 }

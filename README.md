@@ -63,7 +63,7 @@ List<int> results = new List<int>();
 // spherical query
 query.Radius(tree, position, radius, results);
 
-// returns k nearest points
+// returns k nearest points         
 query.KNearest(tree, position, k, results);
 
 // bounds query
@@ -90,11 +90,11 @@ for(int i = 0; i < results.Count; i++) {
 
 Uses internal permutation array, so it doesn't modify original data array. Permutation is identity array at first (arr[i] = i), then gets sorted down the line.
 Hoare partitioning enables to sort permutation array inplace. (Quicksort uses hoare partitioning, too).
-Mid-point rule is used for node splitting - not optimal split but makes construction much faster.
+Mid-point rule is used for node splitting - not the most optimal split but makes construction much faster.
 
 #### KDQuery
 
-All traversal nodes are pooled in internal stack.
+All traversal nodes are pooled in internal queue.
 Uses binary heap for KNearest query. Heaps for all sizes are pooled inside KDQuery object.
 
 ### Sources

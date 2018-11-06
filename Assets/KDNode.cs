@@ -21,7 +21,6 @@ namespace DataStructures {
 
         public KDBounds bounds;
 
-        //public Vector3 tempClosestPoint; // temporary constant for faster querying
     };
 
 }

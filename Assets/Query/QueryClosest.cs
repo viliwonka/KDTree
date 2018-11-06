@@ -23,11 +23,11 @@ namespace DataStructures.Query {
         /// <returns></returns>
         public int ClosestPoint(KDTree tree, Vector3 queryPosition) {
 
-            ResetStack();
+            Reset();
 
             var rootNode = tree.rootNode;
 
-            PushGet(rootNode, queryPosition);
+            PushToQueue(rootNode, queryPosition);
 
             KDQueryNode queryNode = null;
             KDNode node = null;
@@ -44,7 +44,7 @@ namespace DataStructures.Query {
             // Recursion done on Stack
             while(LeftToProcess > 0) {
 
-                queryNode = Pop();
+                queryNode = PopFromQueue();
                 node = queryNode.node;
 
                 // pruning!
@@ -57,7 +57,7 @@ namespace DataStructures.Query {
 
                     if((tempClosestPoint[partitionAxis] - partitionCoord) < 0) {
 
-                        PushGet(node.negativeChild, tempClosestPoint);
+                        PushToQueue(node.negativeChild, tempClosestPoint);
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
@@ -67,12 +67,12 @@ namespace DataStructures.Query {
                         if(node.positiveChild.Count != 0
                         && sqrDist <= minSqrDist) {
 
-                            PushGet(node.positiveChild, tempClosestPoint);
+                            PushToQueue(node.positiveChild, tempClosestPoint);
                         }
                     }
                     else {
 
-                        PushGet(node.positiveChild, tempClosestPoint);
+                        PushToQueue(node.positiveChild, tempClosestPoint);
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
@@ -82,7 +82,7 @@ namespace DataStructures.Query {
                         if(node.negativeChild.Count != 0
                         && sqrDist <= minSqrDist) {
 
-                            PushGet(node.negativeChild, tempClosestPoint);
+                            PushToQueue(node.negativeChild, tempClosestPoint);
                         }
                     }
                 }

@@ -376,7 +376,7 @@ namespace DataStructures {
 
                 if (LP < RP) {
                                 // swap
-                               temp = permutation[LP];
+                                temp = permutation[LP];
                     permutation[LP] = permutation[RP];
                     permutation[RP] = temp;
                 }

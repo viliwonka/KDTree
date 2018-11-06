@@ -7,6 +7,7 @@ namespace DataStructures.Query {
 
         public KDNode node;
         public Vector3 tempClosestPoint;
+        public float distance;
 
         public KDQueryNode() {
 
@@ -16,5 +17,6 @@ namespace DataStructures.Query {
             this.node = node;
             this.tempClosestPoint = tempClosestPoint;
         }
+
     }
 }

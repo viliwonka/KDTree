@@ -24,13 +24,13 @@ namespace DataStructures.Query {
         /// <param name="resultIndices">Initialized list, cleared.</param>
         public void Radius(KDTree tree, Vector3 queryPosition, float queryRadius, List<int> resultIndices) {
 
-            ResetStack();
+            Reset();
 
             float squaredRadius = queryRadius * queryRadius;
 
             var rootNode = tree.rootNode;
 
-            PushGet(rootNode, queryPosition);
+            PushToQueue(rootNode, rootNode.bounds.ClosestPoint(queryPosition));
 
             KDQueryNode queryNode = null;
             KDNode node = null;
@@ -39,7 +39,7 @@ namespace DataStructures.Query {
             // Recursion done on Stack
             while(LeftToProcess > 0) {
 
-                queryNode = Pop();
+                queryNode = PopFromQueue();
                 node = queryNode.node;
 
                 if(!node.Leaf) {
@@ -57,7 +57,7 @@ namespace DataStructures.Query {
 
                         // tempClosestPoint is inside negative side
                         // assign it to negativeChild
-                        PushGet(node.negativeChild, tempClosestPoint);
+                        PushToQueue(node.negativeChild, tempClosestPoint);
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
@@ -67,7 +67,7 @@ namespace DataStructures.Query {
                         if(node.positiveChild.Count != 0
                         && sqrDist <= squaredRadius) {
 
-                            PushGet(node.positiveChild, tempClosestPoint);
+                            PushToQueue(node.positiveChild, tempClosestPoint);
                         }
                     }
                     else {
@@ -78,7 +78,7 @@ namespace DataStructures.Query {
 
                         // tempClosestPoint is inside positive side
                         // assign it to positiveChild
-                        PushGet(node.positiveChild, tempClosestPoint);
+                        PushToQueue(node.positiveChild, tempClosestPoint);
 
                         // project the tempClosestPoint to other bound
                         tempClosestPoint[partitionAxis] = partitionCoord;
@@ -89,7 +89,7 @@ namespace DataStructures.Query {
                         if(node.negativeChild.Count != 0
                         && sqrDist <= squaredRadius) {
 
-                            PushGet(node.negativeChild, tempClosestPoint);
+                            PushToQueue(node.negativeChild, tempClosestPoint);
                         }
                     }
                 }
