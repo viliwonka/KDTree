@@ -34,28 +34,29 @@ namespace DataStructures {
 
         public int Count { get; private set; }
 
-        private int maxPointsPerLeafNode = 8;
+        private int maxPointsPerLeafNode = 32;
 
-        private KDNode[] kdNodes;
+        private KDNode[] kdNodesStack;
+        private int kdNodesCount = 0;
 
-        public KDTree(int maxPointsPerLeafNode = 8) {
+        public KDTree(int maxPointsPerLeafNode = 16) {
 
             Count       = 0;
             points      = new Vector3[0];
             permutation = new     int[0];
 
-            kdNodes     = new KDNode[0];
+            kdNodesStack = new KDNode[64];
 
             this.maxPointsPerLeafNode = maxPointsPerLeafNode;
         }
 
-        public KDTree(Vector3[] points, int maxPointsPerLeafNode = 8) {
+        public KDTree(Vector3[] points, int maxPointsPerLeafNode = 16) {
 
             this.points = points;
             this.permutation = new int[points.Length];
 
             Count = points.Length;
-            kdNodes = new KDNode[0];
+            kdNodesStack = new KDNode[64];
 
             this.maxPointsPerLeafNode = maxPointsPerLeafNode;
 
@@ -113,13 +114,45 @@ namespace DataStructures {
 
         void BuildTree() {
 
-            RootNode = new KDNode();
+            ResetKDNodeStack();
+
+            RootNode = GetKDNode();
             RootNode.bounds = MakeBounds();
             RootNode.start = 0;
             RootNode.end = Count;
 
             SplitNode(RootNode);
+        }
 
+
+        KDNode GetKDNode() {
+
+            KDNode node = null;
+
+            if(kdNodesCount < kdNodesStack.Length) {
+
+                if(kdNodesStack[kdNodesCount] == null) {
+                    kdNodesStack[kdNodesCount] = node = new KDNode();
+                }
+                else {
+                    node = kdNodesStack[kdNodesCount];
+                    node.partitionAxis = -1;
+                }
+            }
+            else {
+
+                // automatic resize of KDNode pool array
+                Array.Resize(ref kdNodesStack, kdNodesStack.Length * 2);
+                node = kdNodesStack[kdNodesCount] = new KDNode();
+            }
+
+            kdNodesCount++;
+
+            return node;
+        }
+
+        void ResetKDNodeStack() {
+            kdNodesCount = 0;
         }
 
         /// <summary>
@@ -265,7 +298,7 @@ namespace DataStructures {
             Vector3 negMax = parentBounds.max;
             negMax[splitAxis] = splitPivot;
 
-            KDNode negNode = new KDNode();
+            KDNode negNode = GetKDNode();
             negNode.bounds = parentBounds;
             negNode.bounds.max = negMax;
             negNode.start = parent.start;
@@ -276,7 +309,7 @@ namespace DataStructures {
             Vector3 posMin = parentBounds.min;
             posMin[splitAxis] = splitPivot;
 
-            KDNode posNode = new KDNode();
+            KDNode posNode = GetKDNode();
             posNode.bounds = parentBounds;
             posNode.bounds.min = posMin;
             posNode.start = splittingIndex;

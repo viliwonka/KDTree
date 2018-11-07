@@ -33,9 +33,7 @@ namespace DataStructures.Tests {
 
         void Awake() {
 
-            pointCloud = new Vector3[10000];
-
-            //tree.Build(pointCloud);
+            pointCloud = new Vector3[20000];
 
             query = new Query.KDQuery();
 
@@ -47,6 +45,7 @@ namespace DataStructures.Tests {
                     (1f + Random.value * 0.25f),
                     (1f + Random.value * 0.25f)
                 );
+
             }
 
             for(int i = 0; i < pointCloud.Length; i++) {
@@ -56,7 +55,7 @@ namespace DataStructures.Tests {
                 }
             }
 
-            tree = new KDTree(pointCloud);
+            tree = new KDTree(pointCloud, 32);
         }
 
         Vector3 LorenzStep(Vector3 p) {
@@ -83,9 +82,10 @@ namespace DataStructures.Tests {
             tree.Rebuild();
         }
 
+
+    /*
         void Generate() {
 
-            /*
             float U = Random.onUnitSphere;
             float V = Random.onUnitSphere;
 
@@ -97,8 +97,8 @@ namespace DataStructures.Tests {
             if(tree == null) {
                 tree = new KDTree(pointCloud);
             }
-            */
         }
+    */
 
         private void OnDrawGizmos() {
 
@@ -109,7 +109,6 @@ namespace DataStructures.Tests {
             Vector3 size = 0.2f * Vector3.one;
 
             for(int i = 0; i < pointCloud.Length; i++) {
-
 
                 Gizmos.DrawCube(pointCloud[i], size);
             }
