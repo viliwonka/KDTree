@@ -143,7 +143,9 @@ namespace DataStructures.Tests {
             stopwatch.Reset();
             stopwatch.Start();
 
-            tree = KDTreeBuilder.Instance.Build(testingArray);
+            tree = new KDTree();
+
+            tree.Build(testingArray);
 
             stopwatch.Stop();
 

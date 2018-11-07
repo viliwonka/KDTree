@@ -19,7 +19,10 @@ namespace DataStructures.Query {
 
             Reset();
 
-            var rootNode = tree.rootNode;
+            Vector3[] points = tree.Points;
+            int[] permutation = tree.Permutation;
+
+            var rootNode = tree.RootNode;
 
             PushToQueue(
 
@@ -100,7 +103,7 @@ namespace DataStructures.Query {
 
                         for(int i = node.start; i < node.end; i++) {
 
-                            resultIndices.Add(tree.permutation[i]);
+                            resultIndices.Add(permutation[i]);
                         }
 
                     }
@@ -109,9 +112,9 @@ namespace DataStructures.Query {
 
                         for(int i = node.start; i < node.end; i++) {
 
-                            int index = tree.permutation[i];
+                            int index = permutation[i];
 
-                            Vector3 v = tree.points[index];
+                            Vector3 v = points[index];
 
                             if(v[0] >= min[0]
                             && v[1] >= min[1]

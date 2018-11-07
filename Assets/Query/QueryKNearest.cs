@@ -44,10 +44,13 @@ namespace DataStructures.Query {
             kHeap.Clear();
             Reset();
 
+            Vector3[] points = tree.Points;
+            int[] permutation = tree.Permutation;
+
             ///Biggest Smallest Squared Radius
             float BSSR = Single.PositiveInfinity;
 
-            var rootNode = tree.rootNode;
+            var rootNode = tree.RootNode;
 
             Vector3 rootClosestPoint = rootNode.bounds.ClosestPoint(queryPosition);
 
@@ -117,9 +120,9 @@ namespace DataStructures.Query {
                     // LEAF
                     for(int i = node.start; i < node.end; i++) {
 
-                        int index = tree.permutation[i];
+                        int index = permutation[i];
 
-                        sqrDist = Vector3.SqrMagnitude(tree.points[index] - queryPosition);
+                        sqrDist = Vector3.SqrMagnitude(points[index] - queryPosition);
 
                         if(sqrDist <= BSSR) {
 

@@ -23,13 +23,15 @@ namespace DataStructures.Query {
 
             Reset();
 
-            ///Smallest Squared Radius
+            Vector3[] points = tree.Points;
+            int[] permutation = tree.Permutation;
 
             int smallestIndex = 0;
+            /// Smallest Squared Radius
             float SSR = Single.PositiveInfinity;
 
 
-            var rootNode = tree.rootNode;
+            var rootNode = tree.RootNode;
 
             Vector3 rootClosestPoint = rootNode.bounds.ClosestPoint(queryPosition);
 
@@ -99,9 +101,9 @@ namespace DataStructures.Query {
                     // LEAF
                     for(int i = node.start; i < node.end; i++) {
 
-                        int index = tree.permutation[i];
+                        int index = permutation[i];
 
-                        sqrDist = Vector3.SqrMagnitude(tree.points[index] - queryPosition);
+                        sqrDist = Vector3.SqrMagnitude(points[index] - queryPosition);
 
                         if(sqrDist <= SSR) {
 

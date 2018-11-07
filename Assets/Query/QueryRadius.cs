@@ -26,9 +26,12 @@ namespace DataStructures.Query {
 
             Reset();
 
+            Vector3[] points = tree.Points;
+            int[] permutation = tree.Permutation;
+
             float squaredRadius = queryRadius * queryRadius;
 
-            var rootNode = tree.rootNode;
+            var rootNode = tree.RootNode;
 
             PushToQueue(rootNode, rootNode.bounds.ClosestPoint(queryPosition));
 
@@ -98,9 +101,9 @@ namespace DataStructures.Query {
                     // LEAF
                     for(int i = node.start; i < node.end; i++) {
 
-                        int index = tree.permutation[i];
+                        int index = permutation[i];
 
-                        if(Vector3.SqrMagnitude(tree.points[index] - queryPosition) <= squaredRadius) {
+                        if(Vector3.SqrMagnitude(points[index] - queryPosition) <= squaredRadius) {
 
                             resultIndices.Add(index);
                         }

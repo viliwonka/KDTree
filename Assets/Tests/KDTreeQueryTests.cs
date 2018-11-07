@@ -19,7 +19,7 @@ namespace DataStructures.Tests {
 
         public int K = 13;
 
-        [Range(0f, 1f)]
+        [Range(0f, 100f)]
         public float Radius = 0.1f;
 
         public bool DrawQueryNodes = true;
@@ -33,29 +33,71 @@ namespace DataStructures.Tests {
 
         void Awake() {
 
-            pointCloud = new Vector3[20000];
+            pointCloud = new Vector3[10000];
 
-            for(int i = 0; i < pointCloud.Length / 2; i++) {
+            //tree.Build(pointCloud);
+
+            query = new Query.KDQuery();
+
+            for(int i = 0; i < pointCloud.Length; i++) {
 
                 pointCloud[i] = new Vector3(
 
-                    (Random.value + Random.value) / 2f,
-                    (Random.value + Random.value) / 2f,
-                    (Random.value + Random.value) / 2f
+                    (1f + Random.value * 0.25f),
+                    (1f + Random.value * 0.25f),
+                    (1f + Random.value * 0.25f)
                 );
             }
 
-            Vector3 U = Random.onUnitSphere;
-            Vector3 V = Random.onUnitSphere;
+            for(int i = 0; i < pointCloud.Length; i++) {
+
+                for(int j=0; j < i; j++) {
+                    pointCloud[i] += LorenzStep(pointCloud[i]) * 0.01f;
+                }
+            }
+
+            tree = new KDTree(pointCloud);
+        }
+
+        Vector3 LorenzStep(Vector3 p) {
+
+            float ρ = 28f;
+            float σ = 10f;
+            float β = 8 / 3f;
+
+            return new Vector3(
+
+                σ * (p.y - p.x),
+                p.x * (ρ - p.z) - p.y,
+                p.x * p.y - β * p.z
+            );
+        }
+
+        void Update() {
+
+            for(int i = 0; i < tree.Count; i++) {
+
+                tree.Points[i] += LorenzStep(tree.Points[i]) * Time.deltaTime * 0.1f;
+            }
+
+            tree.Rebuild();
+        }
+
+        void Generate() {
+
+            /*
+            float U = Random.onUnitSphere;
+            float V = Random.onUnitSphere;
 
             for(int i = pointCloud.Length / 2; i < pointCloud.Length; i++) {
 
                 pointCloud[i] = Vector3.one * 1f + Random.value * U + Random.value * V + Random.insideUnitSphere * 0.1f;
             }
 
-            tree = KDTreeBuilder.Instance.Build(pointCloud);
-
-            query = new Query.KDQuery();
+            if(tree == null) {
+                tree = new KDTree(pointCloud);
+            }
+            */
         }
 
         private void OnDrawGizmos() {
@@ -64,7 +106,7 @@ namespace DataStructures.Tests {
                 return;
             }
 
-            Vector3 size = 0.01f * Vector3.one;
+            Vector3 size = 0.2f * Vector3.one;
 
             for(int i = 0; i < pointCloud.Length; i++) {
 

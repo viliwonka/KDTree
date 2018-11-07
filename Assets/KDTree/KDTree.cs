@@ -22,77 +22,103 @@ using UnityEngine;
 
 namespace DataStructures {
 
-    public class KDTreeBuilder {
+    public partial class KDTree {
 
-        public static KDTreeBuilder Instance = new KDTreeBuilder();
+        public KDNode RootNode { get; private set; }
 
-        public KDNode rootNode;
+        public Vector3[] Points { get { return points; } } // points on which kd-tree will build on. This array will stay unchanged when re/building kdtree!
+        private Vector3[] points;
 
-        private Vector3[] points; // points on which kd-tree will build on. This array will stay unchanged!
-        // to optimize this tree further, remove permutation array and modify points array directly (it will make kd-tree magic in-place)
+        public int[] Permutation { get { return permutation; } } // index aray, that will get permuted
+        private int[] permutation;
 
-        private int[] permutation; // index aray, that will get permuted
+        public int Count { get; private set; }
 
-        int maxPointsPerLeafNode = 0;
+        private int maxPointsPerLeafNode = 8;
 
-        public KDTreeBuilder() {
+        private KDNode[] kdNodes;
 
+        public KDTree(int maxPointsPerLeafNode = 8) {
+
+            Count       = 0;
+            points      = new Vector3[0];
+            permutation = new     int[0];
+
+            kdNodes     = new KDNode[0];
+
+            this.maxPointsPerLeafNode = maxPointsPerLeafNode;
         }
 
-#if FL_KD_DEBUG
-        int nodeCount = 0;
-        int maxDepth = 0;
-        long depthCount = 0;
-#endif
-        /// <summary>
-        /// Starting point for building KDTree
-        /// </summary>
-        /// <param name="points">Accepts </param>
-        /// <returns>Returns built KDTree</returns>
-        public KDTree Build(Vector3[] points, int maxPointsPerLeafNode = 8) {
+        public KDTree(Vector3[] points, int maxPointsPerLeafNode = 8) {
 
-#if FL_KD_DEBUG
-            nodeCount = 1;
-            maxDepth = 0;
-            depthCount = 0;
-#endif
-            //! consider IList<Vector3> to make library more general
-            //! or IReadOnlyList<Vector3> (might not be supported
             this.points = points;
+            this.permutation = new int[points.Length];
 
-            this.maxPointsPerLeafNode = 5;
+            Count = points.Length;
+            kdNodes = new KDNode[0];
 
-            permutation = new int[points.Length];
+            this.maxPointsPerLeafNode = maxPointsPerLeafNode;
 
-            // permutation array is identiy "[i] = i" at first
-            for (int i = 0; i < points.Length; i++)
+            Rebuild();
+        }
+
+
+        public void Build(Vector3[] newPoints, int maxPointsPerLeafNode = -1) {
+
+            SetCount(newPoints.Length);
+
+            for(int i = 0; i < Count; i++) {
+                points[i] = newPoints[i];
+            }
+
+            Rebuild(maxPointsPerLeafNode);
+        }
+
+        public void Build(List<Vector3> newPoints, int maxPointsPerLeafNode = -1) {
+
+            SetCount(newPoints.Count);
+
+            for(int i = 0; i < Count; i++) {
+                points[i] = newPoints[i];
+            }
+
+            Rebuild(maxPointsPerLeafNode);
+        }
+
+        public void Rebuild(int maxPointsPerLeafNode = -1) {
+
+            SetCount(Count);
+
+            for(int i = 0; i < Count; i++) {
                 permutation[i] = i;
+            }
+
+            if(maxPointsPerLeafNode > 0) {
+                this.maxPointsPerLeafNode = maxPointsPerLeafNode;
+            }
 
             BuildTree();
-
-            var tree = new KDTree(rootNode, this.points, permutation);
-
-            return tree;
         }
 
+        public void SetCount(int newSize) {
+
+            Count = newSize;
+            // upsize internal arrays
+            if(Count > points.Length) {
+
+                Array.Resize(ref points,        Count);
+                Array.Resize(ref permutation,   Count);
+            }
+        }
 
         void BuildTree() {
 
-            rootNode = new KDNode();
-            rootNode.bounds = MakeBounds();
-            rootNode.start = 0;
-            rootNode.end = permutation.Length;
+            RootNode = new KDNode();
+            RootNode.bounds = MakeBounds();
+            RootNode.start = 0;
+            RootNode.end = Count;
 
-#if !FL_KD_DEBUG
-            SplitNode(rootNode);
-#else
-            SplitNode(rootNode, 1);
-
-
-            Debug.Log("NodeCount: " + nodeCount);
-            Debug.Log("AvgDepth:  " + depthCount / nodeCount);
-            Debug.Log("MaxDepth:  " + maxDepth);
-#endif
+            SplitNode(RootNode);
 
         }
 
@@ -105,7 +131,7 @@ namespace DataStructures {
             Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
             Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
 
-            int even = points.Length & ~1; // calculate even Length
+            int even = Count & ~1; // calculate even Length
 
             // min, max calculations
             // 3n/2 calculations instead of 2n
@@ -169,7 +195,7 @@ namespace DataStructures {
             }
 
             // if array was odd, calculate also min/max for the last element
-            if(even != points.Length) {
+            if(even != Count) {
                 // X
                 if (min.x > points[even].x)
                     min.x = points[even].x;
@@ -203,15 +229,8 @@ namespace DataStructures {
         /// <param name="parent">This is where root node goes</param>
         /// <param name="depth"></param>
         ///
-#if !FL_KD_DEBUG
         void SplitNode(KDNode parent) {
-#else
-        void SplitNode(KDNode parent, int depth) {
 
-            maxDepth = Mathf.Max(maxDepth, depth);
-            nodeCount += 2;
-            depthCount += 2*depth;
-#endif
             // center of bounding box
             KDBounds parentBounds = parent.bounds;
             Vector3 parentBoundsSize = parentBounds.size;
@@ -264,22 +283,12 @@ namespace DataStructures {
             posNode.end = parent.end;
             parent.positiveChild = posNode;
 
-#if !KD_DEBUG
             // Constraint function deciding if split should be continued
             if (ContinueSplit(negNode))
                 SplitNode(negNode);
 
             if (ContinueSplit(posNode))
                 SplitNode(posNode);
-#else
-            // Constraint function deciding if split should be continued
-            if (ContinueSplit(negNode))
-                SplitNode(negNode, depth + 1);
-
-            if (ContinueSplit(posNode))
-                SplitNode(posNode, depth + 1);
-#endif
-
         }
 
         /// <summary>
@@ -376,7 +385,7 @@ namespace DataStructures {
 
                 if (LP < RP) {
                                 // swap
-                                temp = permutation[LP];
+                               temp = permutation[LP];
                     permutation[LP] = permutation[RP];
                     permutation[RP] = temp;
                 }

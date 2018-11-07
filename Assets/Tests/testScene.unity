@@ -253,7 +253,7 @@ MonoBehaviour:
   QueryType: 1
   K: 13
   Radius: 0.1
-  DrawQueryNodes: 0
+  DrawQueryNodes: 1
   IntervalSize: {x: 0.2, y: 0.2, z: 0.2}
 --- !u!1 &1302911956
 GameObject:
