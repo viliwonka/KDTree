@@ -110,15 +110,19 @@ for(int i = 0; i < results.Count; i++) {
 Those demos show rebuilding tree & querying of Live Lorenz Attractor point cloud.
 
 Drawing traversal nodes of KNearest Query
+
 ![alt-text](https://raw.githubusercontent.com/viliwonka/KDTree/master/Media/FrontPic.PNG)
 
-KNearest Query 
+KNearest Query
+
 ![alt-text](https://raw.githubusercontent.com/viliwonka/KDTree/master/Media/KNearestQuery.gif)
 
 Radius Query
+
 ![alt-text](https://raw.githubusercontent.com/viliwonka/KDTree/master/Media/RadiusQuery.gif)
 
 Interval/Bounds Query
+
 ![alt-text](https://raw.githubusercontent.com/viliwonka/KDTree/master/Media/IntervalQuery.gif)
 
 
