@@ -51,6 +51,7 @@ namespace DataStructures.Tests {
             for(int i = 0; i < pointCloud.Length; i++) {
 
                 for(int j=0; j < i; j++) {
+
                     pointCloud[i] += LorenzStep(pointCloud[i]) * 0.01f;
                 }
             }
@@ -81,24 +82,6 @@ namespace DataStructures.Tests {
 
             tree.Rebuild();
         }
-
-
-    /*
-        void Generate() {
-
-            float U = Random.onUnitSphere;
-            float V = Random.onUnitSphere;
-
-            for(int i = pointCloud.Length / 2; i < pointCloud.Length; i++) {
-
-                pointCloud[i] = Vector3.one * 1f + Random.value * U + Random.value * V + Random.insideUnitSphere * 0.1f;
-            }
-
-            if(tree == null) {
-                tree = new KDTree(pointCloud);
-            }
-        }
-    */
 
         private void OnDrawGizmos() {
 
@@ -156,17 +139,10 @@ namespace DataStructures.Tests {
             for(int i = 0; i < resultIndices.Count; i++) {
 
                 Gizmos.DrawCube(pointCloud[resultIndices[i]], 2f * size);
-
-                /*if(QueryType == QType.KNearest || QueryType == QType.ClosestPoint) {
-
-                    Gizmos.DrawLine(pointCloud[resultIndices[i]], transform.position);
-                }*/
             }
 
             Gizmos.color = Color.green;
             Gizmos.DrawCube(transform.position, 4f * size);
-
-
 
             if(DrawQueryNodes) {
                 query.DrawLastQuery();

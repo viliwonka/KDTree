@@ -20,7 +20,6 @@
 
 ### How to use
 
-
 #### Construction
 
 First you need some array of points.
@@ -36,10 +35,34 @@ for(int i = 0; i < pointCloud.Length; i++)
 
 Then build the tree out of it. Note that original pointCloud shouldn't change, since tree is referencing it!
 
+Note: Higher maxPointsPerLeafNode makes construction of tree faster, but querying slower.
+And true is inverse: Lower maxPointsPerLeafNode makes construction of tree slower, but querying faster.
 ```cs
-int maxPointsPerLeafNode = 8;
-KDTree tree = KDTreeBuilder.Instance.Build(pointCloud, maxPointsPerLeafNode);
+int maxPointsPerLeafNode = 32;
+KDTree tree = new KDTree(pointCloud, maxPointsPerLeafNode);
 ```
+
+#### Reconstruction
+
+If you wish to update points and reconstruct tree, you do it like this:
+
+```cs
+for(int i = 0; i < tree.Count; i++) {
+    tree.Points[i] += Func(tree.Points[i]);
+}
+
+tree.Rebuild();
+```
+
+Such rebuilding will be with zero GC impact.
+
+Other functions for rebuilding (data will be copied from array/list, not reference!).
+```cs
+public void Build(Vector3[] newPoints, int maxPointsPerLeafNode = -1);
+public void Build(List<Vector3> newPoints, int maxPointsPerLeafNode = -1);
+```
+
+#### Querying
 
 Now that tree has been constructed, make a KDQuery object. 
 
@@ -48,8 +71,6 @@ Note: if you wish to do querying from multiple threads, then each own thread sho
 ```cs
 Query.KDQuery query = new Query.KDQuery();
 ```
-
-#### Querying
 
 For most query methods you need pre-initialized results list & reference to tree that you wish to query.
 Results list will contain indexes for pointCloud array.
@@ -70,7 +91,7 @@ query.KNearest(tree, position, k, results);
 query.Interval(tree, min, max, results);
 
 // closest point query
-int index = query.ClosestPoint(tree, position);
+query.ClosestPoint(tree, position, results);
 ```
 
 #### Post Query

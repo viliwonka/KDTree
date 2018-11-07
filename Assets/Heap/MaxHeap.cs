@@ -101,6 +101,18 @@ namespace DataStructures.Heap {
             return result;
         }
 
+
+        public T PopObj(ref float heapValue) {
+
+            if(nodesCount == 0)
+                throw new System.ArgumentException("Heap is empty!");
+
+            heapValue = heap[1];
+            T result = PopObj();
+
+            return result;
+        }
+
         protected virtual void UpsizeHeap() {
 
             maxSize *= 2;
@@ -108,17 +120,24 @@ namespace DataStructures.Heap {
             System.Array.Resize(ref objs, maxSize + 1);
         }
 
+        //flush internal results, returns ordered data
         public void FlushResult(List<T> resultList, List<float> heapList = null) {
 
             int count = nodesCount + 1;
 
-            for(int i = 1; i < count; i++) {
-                resultList.Add(objs[i]);
-            }
+            if(heapList == null) {
 
-            if(heapList != null) {
                 for(int i = 1; i < count; i++) {
-                    heapList.Add(heap[i]);
+                    resultList.Add(PopObj());
+                }
+            }
+            else {
+
+                float h = 0f;
+
+                for(int i = 1; i < count; i++) {
+                    resultList.Add(PopObj(ref h));
+                    heapList.Add(h);
                 }
             }
         }

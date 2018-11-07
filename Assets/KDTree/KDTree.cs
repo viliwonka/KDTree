@@ -63,7 +63,6 @@ namespace DataStructures {
             Rebuild();
         }
 
-
         public void Build(Vector3[] newPoints, int maxPointsPerLeafNode = -1) {
 
             SetCount(newPoints.Length);
@@ -123,7 +122,6 @@ namespace DataStructures {
 
             SplitNode(RootNode);
         }
-
 
         KDNode GetKDNode() {
 
