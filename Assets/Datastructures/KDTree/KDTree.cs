@@ -1,19 +1,25 @@
-﻿// This KDTree is not online algorithm - it assumess all data at once.
-// For every change in points array you will have to reconstruct the tree.
-//
+﻿/*MIT License
 
-///
-// If you want KDTree to output some statistics, use KD_DEBUG:
-// Node count
-// Average depth
-// Max depth
-//#define KD_DEBUG
+Copyright(c) 2018 Vili Volčini / viliwonka
 
-///
-// If your input points are sorted (for example by X, then Y, then Z), you can use FL_KD_SORTED_DATA
-// example: points of planar mesh, or meshes with correct topology
-// enabling this will get you around ~10% speed on building KDTree if you input sorted data
-// but it will make it slower on random (non-sorted) data
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
 using System.Collections;
 using System.Collections.Generic;
@@ -29,7 +35,7 @@ namespace DataStructures.ViliWonka.KDTree {
         public Vector3[] Points { get { return points; } } // points on which kd-tree will build on. This array will stay unchanged when re/building kdtree!
         private Vector3[] points;
 
-        public int[] Permutation { get { return permutation; } } // index aray, that will get permuted
+        public int[] Permutation { get { return permutation; } } // index aray, that will be permuted
         private int[] permutation;
 
         public int Count { get; private set; }
