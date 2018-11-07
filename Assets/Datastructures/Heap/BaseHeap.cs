@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 // structure of LimitedMaxHeap is same as MaxHeap, but it is Limited & throws biggest items out (so only minimums are left!!)
-namespace DataStructures.Heap {
+namespace DataStructures.ViliWonka.Heap {
 
     // array start at index 1
     public abstract class BaseHeap {

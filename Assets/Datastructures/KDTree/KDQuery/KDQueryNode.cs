@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-namespace DataStructures.Query {
+namespace DataStructures.ViliWonka.KDTree {
 
     public class KDQueryNode {
 

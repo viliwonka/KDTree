@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace DataStructures {
+namespace DataStructures.ViliWonka.KDTree {
 
     public class KDNode {
 

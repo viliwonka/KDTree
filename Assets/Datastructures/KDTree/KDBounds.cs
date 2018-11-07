@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-namespace DataStructures {
+namespace DataStructures.ViliWonka.KDTree {
 
     public struct KDBounds {
 

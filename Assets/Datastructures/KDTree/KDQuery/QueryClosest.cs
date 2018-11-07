@@ -13,42 +13,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace DataStructures.Query {
+namespace DataStructures.ViliWonka.KDTree {
 
     using Heap;
 
     public partial class KDQuery {
 
-        SortedList<int, KSmallestHeap<int>> _heaps = new SortedList<int, KSmallestHeap<int>>();
-        /// <summary>
-        /// Returns indices to k closest points, and optionaly can return distances
-        /// </summary>
-        /// <param name="tree">Tree to do search on</param>
-        /// <param name="queryPosition">Position</param>
-        /// <param name="k">Max number of points</param>
-        /// <param name="resultIndices">List where resulting indices will be stored</param>
-        /// <param name="resultDistances">Optional list where resulting distances will be stored</param>
-        public void KNearest(KDTree tree, Vector3 queryPosition, int k, List<int> resultIndices, List<float> resultDistances = null) {
+        public void ClosestPoint(KDTree tree, Vector3 queryPosition, List<int> resultIndices, List<float> resultDistances = null) {
 
-            // pooled heap arrays
-            KSmallestHeap<int> kHeap;
-
-            _heaps.TryGetValue(k, out kHeap);
-
-            if(kHeap == null) {
-
-                kHeap = new KSmallestHeap<int>(k);
-                _heaps.Add(k, kHeap);
-            }
-
-            kHeap.Clear();
             Reset();
 
             Vector3[] points = tree.Points;
             int[] permutation = tree.Permutation;
 
-            ///Biggest Smallest Squared Radius
-            float BSSR = Single.PositiveInfinity;
+            int smallestIndex = 0;
+            /// Smallest Squared Radius
+            float SSR = Single.PositiveInfinity;
+
 
             var rootNode = tree.RootNode;
 
@@ -69,7 +50,7 @@ namespace DataStructures.Query {
 
                 queryNode = PopFromHeap();
 
-                if(queryNode.distance > BSSR)
+                if(queryNode.distance > SSR)
                     continue;
 
                 node = queryNode.node;
@@ -124,20 +105,21 @@ namespace DataStructures.Query {
 
                         sqrDist = Vector3.SqrMagnitude(points[index] - queryPosition);
 
-                        if(sqrDist <= BSSR) {
+                        if(sqrDist <= SSR) {
 
-                            kHeap.PushObj(index, sqrDist);
-
-                            if(kHeap.Full) {
-                                BSSR = kHeap.HeadValue;
-                            }
+                            SSR = sqrDist;
+                            smallestIndex = index;
                         }
                     }
 
                 }
             }
 
-            kHeap.FlushResult(resultIndices, resultDistances);
+            resultIndices.Add(smallestIndex);
+
+            if(resultDistances != null) {
+                resultDistances.Add(SSR);
+            }
 
         }
 

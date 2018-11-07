@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace DataStructures.Query {
+namespace DataStructures.ViliWonka.KDTree {
 
     public partial class KDQuery {
 

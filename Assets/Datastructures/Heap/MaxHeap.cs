@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 
-namespace DataStructures.Heap {
+namespace DataStructures.ViliWonka.Heap {
 
-    public class MinHeap : BaseHeap {
+    public class MaxHeap : BaseHeap {
 
-        public MinHeap(int initialSize = 2048) : base(initialSize) {
+        public MaxHeap(int initialSize = 2048) : base(initialSize) {
+
 
         }
 
@@ -18,7 +19,7 @@ namespace DataStructures.Heap {
 
             nodesCount++;
             heap[nodesCount] = h;
-            BubbleUpMin(nodesCount);
+            BubbleUpMax(nodesCount);
         }
 
         public override float PopValue() {
@@ -29,22 +30,19 @@ namespace DataStructures.Heap {
             float result = heap[1];
 
             heap[1] = heap[nodesCount];
-
             nodesCount--;
-
-            if(nodesCount != 0)
-                BubbleDownMin(1);
+            BubbleDownMax(1);
 
             return result;
         }
     }
 
     // generic version
-    public class MinHeap<T> : MinHeap {
+    public class MaxHeap<T> : MaxHeap {
 
         T[] objs; // objects
 
-        public MinHeap(int maxNodes = 2048) : base(maxNodes) {
+        public MaxHeap(int maxNodes) : base(maxNodes) {
             objs = new T[maxNodes + 1];
         }
 
@@ -64,7 +62,7 @@ namespace DataStructures.Heap {
         }
 
         public override void PushValue(float h) {
-            throw new System.ArgumentException("Use Push(T, float)!");
+            throw new System.ArgumentException("Use PushObj(T, float)!");
         }
 
         public override float PopValue() {
@@ -98,12 +96,11 @@ namespace DataStructures.Heap {
             objs[nodesCount] = default(T);
 
             nodesCount--;
-
-            if(nodesCount != 0)
-                BubbleDownMin(1);
+            BubbleDownMin(1);
 
             return result;
         }
+
 
         public T PopObj(ref float heapValue) {
 
@@ -123,7 +120,7 @@ namespace DataStructures.Heap {
             System.Array.Resize(ref objs, maxSize + 1);
         }
 
-        //flush internal array, returns ordered data
+        //flush internal results, returns ordered data
         public void FlushResult(List<T> resultList, List<float> heapList = null) {
 
             int count = nodesCount + 1;

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace DataStructures.Tests {
+namespace DataStructures.ViliWonka.Tests {
 
+    using KDTree;
     public enum QType {
 
         ClosestPoint,
@@ -29,13 +30,13 @@ namespace DataStructures.Tests {
         Vector3[] pointCloud;
         KDTree tree;
 
-        DataStructures.Query.KDQuery query;
+        KDQuery query;
 
         void Awake() {
 
             pointCloud = new Vector3[20000];
 
-            query = new Query.KDQuery();
+            query = new KDQuery();
 
             for(int i = 0; i < pointCloud.Length; i++) {
 

@@ -4,7 +4,7 @@ using System.Diagnostics;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace DataStructures.Tests {
+namespace DataStructures.ViliWonka.Tests {
 
     public class KDTreeBenchmark : MonoBehaviour {
 
@@ -136,14 +136,14 @@ namespace DataStructures.Tests {
 
         }
 
-        KDTree tree;
+        KDTree.KDTree tree;
 
         long Construct() {
 
             stopwatch.Reset();
             stopwatch.Start();
 
-            tree = new KDTree();
+            tree = new KDTree.KDTree();
 
             tree.Build(testingArray);
 
@@ -152,7 +152,7 @@ namespace DataStructures.Tests {
             return stopwatch.ElapsedMilliseconds;
         }
 
-        Query.KDQuery query = new Query.KDQuery();
+        KDTree.KDQuery query = new KDTree.KDQuery();
         List<int> results = new List<int>();
 
         long QueryRadius() {

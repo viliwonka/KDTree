@@ -20,9 +20,9 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 
-namespace DataStructures {
+namespace DataStructures.ViliWonka.KDTree {
 
-    public partial class KDTree {
+    public class KDTree {
 
         public KDNode RootNode { get; private set; }
 

@@ -11,28 +11,32 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace DataStructures.Query {
+namespace DataStructures.ViliWonka.KDTree {
 
     public partial class KDQuery {
 
-        public void Interval(KDTree tree, Vector3 min, Vector3 max, List<int> resultIndices) {
+        /// <summary>
+        /// Search by radius method.
+        /// </summary>
+        /// <param name="tree">Tree to do search on</param>
+        /// <param name="queryPosition">Position</param>
+        /// <param name="queryRadius">Radius</param>
+        /// <param name="resultIndices">Initialized list, cleared.</param>
+        public void Radius(KDTree tree, Vector3 queryPosition, float queryRadius, List<int> resultIndices) {
 
             Reset();
 
             Vector3[] points = tree.Points;
             int[] permutation = tree.Permutation;
 
+            float squaredRadius = queryRadius * queryRadius;
+
             var rootNode = tree.RootNode;
 
-            PushToQueue(
-
-                rootNode,
-                rootNode.bounds.ClosestPoint((min + max) / 2)
-            );
+            PushToQueue(rootNode, rootNode.bounds.ClosestPoint(queryPosition));
 
             KDQueryNode queryNode = null;
             KDNode node = null;
-
 
             // KD search with pruning (don't visit areas which distance is more away than range)
             // Recursion done on Stack
@@ -60,9 +64,11 @@ namespace DataStructures.Query {
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
+                        float sqrDist = Vector3.SqrMagnitude(tempClosestPoint - queryPosition);
+
                         // testing other side
                         if(node.positiveChild.Count != 0
-                        && tempClosestPoint[partitionAxis] <= max[partitionAxis]) {
+                        && sqrDist <= squaredRadius) {
 
                             PushToQueue(node.positiveChild, tempClosestPoint);
                         }
@@ -80,9 +86,11 @@ namespace DataStructures.Query {
                         // project the tempClosestPoint to other bound
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
+                        float sqrDist = Vector3.SqrMagnitude(tempClosestPoint - queryPosition);
+
                         // testing other side
                         if(node.negativeChild.Count != 0
-                        && tempClosestPoint[partitionAxis] >= min[partitionAxis]) {
+                        && sqrDist <= squaredRadius) {
 
                             PushToQueue(node.negativeChild, tempClosestPoint);
                         }
@@ -91,47 +99,19 @@ namespace DataStructures.Query {
                 else {
 
                     // LEAF
+                    for(int i = node.start; i < node.end; i++) {
 
-                    // testing if node bounds are inside the query interval
-                    if(node.bounds.min[0] >= min[0]
-                    && node.bounds.min[1] >= min[1]
-                    && node.bounds.min[2] >= min[2]
+                        int index = permutation[i];
 
-                    && node.bounds.max[0] <= max[0]
-                    && node.bounds.max[1] <= max[1]
-                    && node.bounds.max[2] <= max[2]) {
+                        if(Vector3.SqrMagnitude(points[index] - queryPosition) <= squaredRadius) {
 
-                        for(int i = node.start; i < node.end; i++) {
-
-                            resultIndices.Add(permutation[i]);
-                        }
-
-                    }
-                    // node is not inside query interval, need to do test on each point separately
-                    else {
-
-                        for(int i = node.start; i < node.end; i++) {
-
-                            int index = permutation[i];
-
-                            Vector3 v = points[index];
-
-                            if(v[0] >= min[0]
-                            && v[1] >= min[1]
-                            && v[2] >= min[2]
-
-                            && v[0] <= max[0]
-                            && v[1] <= max[1]
-                            && v[2] <= max[2]) {
-
-                                resultIndices.Add(index);
-                            }
+                            resultIndices.Add(index);
                         }
                     }
 
                 }
             }
         }
-    }
 
+    }
 }
