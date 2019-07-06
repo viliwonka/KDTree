@@ -21,6 +21,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+// change to !KDTREE_DUPLICATES
+// if you know for sure you will not use duplicate coordinates (all unique)
+#define KDTREE_DUPLICATES
+
 using System.Collections;
 using System.Collections.Generic;
 using System;
@@ -320,12 +324,22 @@ namespace DataStructures.ViliWonka.KDTree {
             posNode.end = parent.end;
             parent.positiveChild = posNode;
 
-            // Constraint function deciding if split should be continued
-            if (ContinueSplit(negNode))
-                SplitNode(negNode);
+            // check if we are actually splitting it anything
+            // this if check enables duplicate coordinates, but makes construction a bit slower
+#if KDTREE_DUPLICATES
+            if(negNode.Count != 0 && posNode.Count != 0) {
+            #endif
+                // Constraint function deciding if split should be continued
+                if(ContinueSplit(negNode))
+                    SplitNode(negNode);
 
-            if (ContinueSplit(posNode))
-                SplitNode(posNode);
+
+                if(ContinueSplit(posNode))
+                    SplitNode(posNode);
+
+#if KDTREE_DUPLICATES
+            }
+#endif
         }
 
         /// <summary>

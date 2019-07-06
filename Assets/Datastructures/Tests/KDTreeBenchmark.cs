@@ -47,10 +47,6 @@ namespace DataStructures.ViliWonka.Tests {
             stopwatch  = new Stopwatch();
         }
 
-        // TODO dej v KDTree MAX DEPTH (da se ve koliko je max globina pri konstrukciji)
-        // TODO dej v KDTree NODE COUNT (da se ve koliko nodeov)
-        // TODO dej v KDTree še DEPTH COUNT (da se potem average DEPTH izračuna)
-        // TODO simuliri enak scenarij kot v Unity projektu kjer zašteka
         private void Start() {
 
             testingArray = points10k;
