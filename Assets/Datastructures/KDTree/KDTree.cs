@@ -49,7 +49,7 @@ namespace DataStructures.ViliWonka.KDTree {
         private KDNode[] kdNodesStack;
         private int kdNodesCount = 0;
 
-        public KDTree(int maxPointsPerLeafNode = 16) {
+        public KDTree(int maxPointsPerLeafNode = 32) {
 
             Count       = 0;
             points      = new Vector3[0];
@@ -60,7 +60,7 @@ namespace DataStructures.ViliWonka.KDTree {
             this.maxPointsPerLeafNode = maxPointsPerLeafNode;
         }
 
-        public KDTree(Vector3[] points, int maxPointsPerLeafNode = 16) {
+        public KDTree(Vector3[] points, int maxPointsPerLeafNode = 32) {
 
             this.points = points;
             this.permutation = new int[points.Length];
@@ -71,12 +71,6 @@ namespace DataStructures.ViliWonka.KDTree {
             this.maxPointsPerLeafNode = maxPointsPerLeafNode;
 
             Rebuild();
-        }
-
-        public void Resize(int newSize) {
-
-            Array.Resize(ref points, newSize);
-            Array.Resize(ref permutation, newSize);
         }
 
         public void Build(Vector3[] newPoints, int maxPointsPerLeafNode = -1) {
@@ -102,8 +96,6 @@ namespace DataStructures.ViliWonka.KDTree {
         }
 
         public void Rebuild(int maxPointsPerLeafNode = -1) {
-
-            SetCount(Count);
 
             for(int i = 0; i < Count; i++) {
                 permutation[i] = i;
