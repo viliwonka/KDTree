@@ -73,6 +73,12 @@ namespace DataStructures.ViliWonka.KDTree {
             Rebuild();
         }
 
+        public void Resize(int newSize) {
+
+            Array.Resize(ref points, newSize);
+            Array.Resize(ref permutation, newSize);
+        }
+
         public void Build(Vector3[] newPoints, int maxPointsPerLeafNode = -1) {
 
             SetCount(newPoints.Length);
