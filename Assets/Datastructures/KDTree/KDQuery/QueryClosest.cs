@@ -35,6 +35,10 @@ namespace DataStructures.ViliWonka.KDTree {
 
             Reset();
 
+            if (points.Count == 0) {
+                return;
+            }
+
             Vector3[] points = tree.Points;
             int[] permutation = tree.Permutation;
 
