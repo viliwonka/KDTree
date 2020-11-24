@@ -38,6 +38,10 @@ namespace DataStructures.ViliWonka.KDTree {
             Vector3[] points = tree.Points;
             int[] permutation = tree.Permutation;
 
+            if (points.Length == 0) {
+                return;
+            }
+
             int smallestIndex = 0;
             /// Smallest Squared Radius
             float SSR = Single.PositiveInfinity;
