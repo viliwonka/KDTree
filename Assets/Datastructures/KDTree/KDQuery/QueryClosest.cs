@@ -31,12 +31,16 @@ namespace DataStructures.ViliWonka.KDTree {
 
     public partial class KDQuery {
 
-        public void ClosestPoint(KDTree tree, Vector3 queryPosition, List<int> resultIndices, List<float> resultDistances = null) {
+        // returns a 3-tuple of:
+        // - hasValue (did find anything)
+        // - index of the closest point (undefined if not found)
+        // - distance to that point (undefined if not found)
+        public (bool, int, float) ClosestPoint(KDTree tree, Vector3 queryPosition) {
 
             Reset();
 
             if (points.Count == 0) {
-                return;
+                return (false, -1, -1f);
             }
 
             Vector3[] points = tree.Points;
@@ -131,12 +135,22 @@ namespace DataStructures.ViliWonka.KDTree {
                 }
             }
 
+            return (true, smallestIndex, SSR);
+
+
+        }
+
+        public void ClosestPoint(KDTree tree, Vector3 queryPosition, List<int> resultIndices, List<float> resultDistances = null) {
+            (bool hasValue, int smallestIndex, float SSR) = ClosestPoint(tree, queryPosition);
+
+            if (!hasValue) {
+                return;
+            }
             resultIndices.Add(smallestIndex);
 
             if(resultDistances != null) {
                 resultDistances.Add(SSR);
             }
-
         }
 
     }
