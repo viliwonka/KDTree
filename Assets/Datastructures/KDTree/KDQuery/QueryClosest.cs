@@ -35,12 +35,12 @@ namespace DataStructures.ViliWonka.KDTree {
 
             Reset();
 
-            if (points.Count == 0) {
-                return;
-            }
-
             Vector3[] points = tree.Points;
             int[] permutation = tree.Permutation;
+
+            if (points.Length == 0) {
+                return;
+            }
 
             int smallestIndex = 0;
             /// Smallest Squared Radius
