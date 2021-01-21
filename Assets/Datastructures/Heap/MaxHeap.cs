@@ -136,7 +136,7 @@ namespace DataStructures.ViliWonka.Heap {
             return result;
         }
 
-        protected virtual void UpsizeHeap() {
+        protected override void UpsizeHeap() {
 
             maxSize *= 2;
             System.Array.Resize(ref heap, maxSize + 1);
