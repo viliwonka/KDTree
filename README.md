@@ -142,3 +142,8 @@ Uses binary heap for KNearest query. Heaps for all sizes are pooled inside KDQue
 ### Sources
 
 https://www.cs.umd.edu/~mount/Papers/cgc99-smpack.pdf - Paper about slidding mid-point rule for node splitting.
+
+### Jobified KDTree
+
+There is heavily modified version of this source, that runs on Unity Job System (not made by me).
+https://github.com/ArthurBrussee/KNN/blob/main/KnnJobs.cs
