@@ -146,4 +146,4 @@ https://www.cs.umd.edu/~mount/Papers/cgc99-smpack.pdf - Paper about slidding mid
 ### Jobified KDTree
 
 There is heavily modified version of this source, that runs on Unity Job System (not made by me).
-https://github.com/ArthurBrussee/KNN/blob/main/KnnJobs.cs
+https://github.com/ArthurBrussee/KNN
