@@ -146,4 +146,5 @@ https://www.cs.umd.edu/~mount/Papers/cgc99-smpack.pdf - Paper about slidding mid
 ### Jobified KDTree
 
 There is heavily modified version of this source, that runs on Unity Job System (not made by me).
+Also note that tests are wrong - you are supposed to reuse Query objects, not always create new ones, hence the GC.
 https://github.com/ArthurBrussee/KNN
